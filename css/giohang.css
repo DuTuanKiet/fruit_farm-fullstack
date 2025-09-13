@@ -1,0 +1,240 @@
+/* ---------------------------------------------
+  Giỏ Hàng - Fruit Farm
+--------------------------------------------- */
+
+:root {
+  /* Primary Colors */
+  --white-color: #fff;
+  --black-color: #252525;
+  --primary-color: #3b141c;
+  --secondary-color: #f3961c;
+  --light-pink-color: #faf4f5;
+  --medium-gray-color: #ccc;
+  --medium-blue-color: #3b82f6;
+
+  /* Font Sizes */
+  --font-size-s: 0.9rem;
+  --font-size-n: 1rem;
+  --font-size-m: 1.12rem;
+  --font-size-l: 1.5rem;
+  --font-size-xl: 2rem;
+  --font-size-xxl: 2.3rem;
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Border radius */
+  --border-radius-s: 8px;
+  --border-radius-m: 30px;
+  --border-radius-circle: 50%;
+
+  /* Site max width */
+  --site-max-width: 1300px;
+}
+
+/* ---------------------------------------------
+  Giỏ Hàng - Fruit Farm (Tối ưu với header và ghi chú)
+--------------------------------------------- */
+
+/* Container chính */
+.cart-container {
+  max-width: var(--site-max-width);
+  margin: 120px auto 2rem; /* 120px để tránh header */
+  padding: 2rem;
+  background-color: var(--white-color);
+  border-radius: var(--border-radius-s);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: var(--font-size-s);
+  margin-bottom: 1.8rem;
+  color: var(--black-color);
+}
+.breadcrumb a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+.breadcrumb span {
+  color: var(--medium-gray-color);
+}
+
+/* Bảng giỏ hàng */
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2.5rem;
+}
+.cart-table th,
+.cart-table td {
+  padding: 14px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--medium-gray-color);
+  font-size: var(--font-size-n);
+  vertical-align: middle;
+}
+.cart-table th {
+  background-color: var(--light-pink-color);
+  color: var(--primary-color);
+  font-weight: var(--font-weight-semibold);
+}
+.cart-table td img.cart-product-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--border-radius-s);
+}
+
+/* Controls số lượng */
+.quantity-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+.quantity-control button {
+  padding: 6px 12px;
+  font-size: var(--font-size-n);
+  border: 1px solid var(--medium-gray-color);
+  background-color: var(--white-color);
+  cursor: pointer;
+  border-radius: var(--border-radius-s);
+  transition: 0.2s;
+}
+.quantity-control button:hover {
+  background-color: var(--secondary-color);
+  color: var(--white-color);
+  border-color: var(--secondary-color);
+}
+.quantity-control input {
+  width: 60px;
+  text-align: center;
+  border: 1px solid var(--medium-gray-color);
+  border-radius: var(--border-radius-s);
+  padding: 6px;
+  font-size: var(--font-size-n);
+}
+
+/* Nút xóa sản phẩm */
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.remove-btn:hover {
+  color: var(--primary-color);
+}
+
+/* Cart Actions */
+.cart-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+}
+.cart-notes textarea {
+  width: 100%;
+  min-height: 100px;
+  border: 2px dashed var(--medium-gray-color);
+  border-radius: var(--border-radius-s);
+  padding: 12px 14px;
+  font-size: var(--font-size-n);
+  resize: none;
+  font-family: "Poppins", sans-serif;
+  background-color: #fff8f6;
+  transition: 0.3s;
+}
+.cart-notes textarea:focus {
+  border-color: var(--secondary-color);
+  background-color: #fff4f0;
+  outline: none;
+}
+
+/* Cart Summary */
+.cart-summary {
+  text-align: right;
+  min-width: 240px;
+}
+.cart-summary p {
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 1rem;
+}
+.cart-summary #grand-total {
+  font-size: 1.25rem;
+  color: var(--secondary-color);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Nút mua hàng / checkout */
+.cart-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.cart-buttons .btn {
+  padding: 12px 18px;
+  font-size: var(--font-size-n);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius-m);
+  text-decoration: none;
+  transition: 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.continue-btn {
+  background-color: var(--light-pink-color);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+.continue-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+}
+.checkout-btn {
+  background-color: var(--secondary-color);
+  color: var(--white-color);
+  border: 1px solid var(--secondary-color);
+}
+.checkout-btn:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .cart-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cart-summary {
+    text-align: left;
+    margin-top: 1rem;
+  }
+  .cart-buttons {
+    justify-content: stretch;
+  }
+}
+@media (max-width: 576px) {
+  .cart-table th,
+  .cart-table td {
+    font-size: var(--font-size-s);
+    padding: 8px 6px;
+  }
+  .quantity-control input {
+    width: 50px;
+  }
+  .cart-notes textarea {
+    min-height: 80px;
+  }
+}

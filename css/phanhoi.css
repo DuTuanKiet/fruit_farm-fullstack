@@ -1,0 +1,98 @@
+/* css/phanhoi.css */
+
+.feedback-container {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 40px;
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-l);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.feedback-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.feedback-header h1 {
+  font-size: 2.5em;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.feedback-header p {
+  font-size: 1.1em;
+  color: var(--light-text-color);
+}
+
+.feedback-form-wrapper .form-group label {
+  font-weight: 600;
+  color: var(--light-text-color);
+  font-size: 0.9em;
+}
+
+.feedback-form-wrapper .form-group input,
+.feedback-form-wrapper .form-group textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-m);
+  font-size: 1em;
+  font-family: "Be Vietnam Pro", sans-serif;
+  transition: all 0.3s ease;
+}
+
+.feedback-form-wrapper .form-group input:focus,
+.feedback-form-wrapper .form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-top: 10px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
+}
+
+.error-text {
+  color: var(--danger-color);
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 10px;
+  border-radius: var(--border-radius-s);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.feedback-success {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.feedback-success i {
+  font-size: 4em;
+  color: var(--success-color);
+  margin-bottom: 20px;
+}
+.feedback-success h2 {
+  font-size: 2em;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+.feedback-success .btn {
+  margin-top: 30px;
+}
