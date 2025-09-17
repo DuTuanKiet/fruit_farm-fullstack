@@ -1,6 +1,12 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
-require_once 'db_connect.php';
+
+require_once '../db_connect.php'; 
+
 header('Content-Type: application/json');
 
 // Lấy dữ liệu an toàn
@@ -9,7 +15,7 @@ $username = $data->username ?? '';
 $password = $data->password ?? '';
 
 if (empty($username) || empty($password)) {
-    echo json_encode(['success' => false, 'message' => 'Username and password are required.']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng điền tên đăng nhập và mật khẩu.']);
     exit;
 }
 
@@ -22,35 +28,33 @@ $result = $stmt->get_result();
 if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
     
-    // password_verify để kiểm tra mật khẩu với chuỗi đã mã hóa ở CSDL
+    // password_verify để kiểm tra mật khẩu
     if (password_verify($password, $user['password'])) {
         // Đăng nhập thành công, lưu thông tin vào session
-         $_SESSION['loggedin'] = true;
+        $_SESSION['loggedin'] = true;
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
-        $_SESSION['role'] = $user['role']; // Lấy vai trò từ CSDL
+        $_SESSION['role'] = $user['role']; 
 
         if ($user['role'] === 'admin') { 
-            // Trả về JSON với đường dẫn chuyển hướng đến trang admin
             echo json_encode([
                 'success' => true, 
-                'message' => 'Admin login successful! Redirecting...', 
-                'redirect' => '/fruitfarm/admin/admin_dashboard.php'
+                'message' => 'Đăng nhập Admin thành công! Đang chuyển hướng...', 
+                'redirect' => '/fruitfarm/admin/admin_dashboard.php' // Trỏ đến trang admin
             ]);
         } else {
-            // Trả về JSON với đường dẫn chuyển hướng đến trang chủ
             echo json_encode([
                 'success' => true, 
-                'message' => 'Login successful!', 
-                'redirect' => 'index.php'
+                'message' => 'Đăng nhập thành công!', 
+                'redirect' => 'index.php' // Trở về trang chủ
             ]);
         }
 
     } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid password.']);
+        echo json_encode(['success' => false, 'message' => 'Mật khẩu không chính xác.']);
     }
 } else {
-    echo json_encode(['success' => false, 'message' => 'User not found.']);
+    echo json_encode(['success' => false, 'message' => 'Tài khoản không tồn tại.']);
 }
 
 $stmt->close();

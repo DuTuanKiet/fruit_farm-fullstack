@@ -65,7 +65,7 @@ $page = $_GET['page'] ?? 'dashboard';
                 </h1>
                 <div class="user-info">
     <span>Xin chào, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></span>
-    <a href="../php/logout.php" class="logout-link-simple">
+    <a href="/fruitfarm/php/auth/logout.php" class="logout-link-simple">
         <i class="fa-solid fa-right-from-bracket"></i> Logout
     </a>
 </div>

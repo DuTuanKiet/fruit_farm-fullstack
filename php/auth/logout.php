@@ -1,5 +1,6 @@
 <?php
 session_start(); 
+require_once '../db_connect.php';
 // Xóa tất cả dữ liệu trong session
 $_SESSION = [];
 
