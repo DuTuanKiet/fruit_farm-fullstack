@@ -35,7 +35,7 @@ $total_price = 0;
 if ($mode === 'buy_now' && isset($_SESSION['buy_now_item'])) {
     // TRƯỜNG HỢP 1: MUA NGAY
     $item = $_SESSION['buy_now_item'];
-    $stmt = $conn->prepare("SELECT id, name, price FROM products WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, name, price, image_url FROM products WHERE id IN ($placeholders)"); 
     $stmt->bind_param("i", $item['product_id']);
     $stmt->execute();
     $product = $stmt->get_result()->fetch_assoc();
@@ -127,30 +127,75 @@ if ($mode === 'buy_now' && isset($_SESSION['buy_now_item'])) {
 </div>
 
         <div class="checkout-summary card">
-            <h2>Đơn hàng của bạn</h2>
-            <?php if (!empty($items_to_checkout)): ?>
-                <ul class="order-list">
-                    <?php foreach ($items_to_checkout as $item): ?>
-                        <li>
-                            <?php echo htmlspecialchars($item['name']); ?> 
-                            x <strong><?php echo $item['quantity']; ?></strong>
-                            <span><?php echo number_format($item['price'] * $item['quantity']); ?>₫</span>
-                        </li>
-                        <?php $total_price += $item['price'] * $item['quantity']; ?>
-                    <?php endforeach; ?>
-                </ul>
-                <div class="order-meta">
-                    <p>Phí vận chuyển: <span>20,000₫</span></p>
-                    <p class="total">
-                        Tổng cộng:
-                        <span><?php echo number_format($total_price + 20000); ?>₫</span>
-                    </p>
-                </div>
-                <button class="btn-submit">Xác nhận đặt hàng</button>
-            <?php else: ?>
-                <p>Không có sản phẩm nào để thanh toán.</p>
-            <?php endif; ?>
-        </div>
+    <h2>Đơn hàng của bạn</h2>
+    <?php if (!empty($items_to_checkout)): ?>
+        
+        <table class="order-table">
+    <colgroup>
+        <col class="col-product">
+        <col class="col-qty">
+        <col class="col-total">
+    </colgroup>
+    
+    <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th class="text-center">Số lượng</th>
+            <th class="text-right">Tạm tính</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php 
+        $total_price = 0;
+        foreach ($items_to_checkout as $item): 
+            $subtotal = $item['price'] * $item['quantity'];
+            $total_price += $subtotal;
+        ?>
+            <tr>
+                <td>
+                    <div class="product-info-cell">
+                        <div class="product-thumbnail">
+                            <img src="<?php echo htmlspecialchars($item['image_url']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
+                        </div>
+                        <span class="product-name">
+                            <?php echo htmlspecialchars($item['name']); ?>
+                        </span>
+                    </div>
+                </td>
+                <td class="product-qty text-center">
+                    <?php echo $item['quantity']; ?>
+                </td>
+                <td class="product-total text-right">
+                    <?php echo number_format($subtotal); ?>₫
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2">Tạm tính</td>
+            <td class="text-right"><?php echo number_format($total_price); ?>₫</td>
+        </tr>
+        <tr>
+            <td colspan="2">Phí vận chuyển</td>
+            <td class="text-right">20,000₫</td>
+        </tr>
+        <tr class="total-row">
+            <td colspan="2">Tổng cộng</td>
+            <td class="text-right"><?php echo number_format($total_price + 20000); ?>₫</td>
+        </tr>
+    </tfoot>
+</table>
+
+        <button type="submit" form="checkoutForm" class="btn-submit">
+             <i class="fa fa-lock"></i>
+             Xác nhận đặt hàng
+        </button>
+        
+    <?php else: ?>
+        <p>Không có sản phẩm nào để thanh toán.</p>
+    <?php endif; ?>
+</div>
     </div>
 </main>
 <?php include 'footer.php'; ?>

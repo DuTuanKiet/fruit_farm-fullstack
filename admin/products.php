@@ -71,8 +71,11 @@ if ($action === 'add') {
     
     include 'product_edit.php';
 
+// Trong file: admin/products.php
+
 } else {
     // Mặc định, hiển thị danh sách sản phẩm
+    // Câu lệnh này lấy dữ liệu và gán vào biến $result
     $result = $conn->query("SELECT * FROM products ORDER BY id ASC");
 ?>
     <h2>Product Management</h2>
@@ -84,11 +87,15 @@ if ($action === 'add') {
                 <th>Image</th>
                 <th>Name</th>
                 <th>Price</th>
-                <th>Featured</th> <th>Actions</th>
+                <th>Featured</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
+            <?php 
+            // để duyệt qua từng dòng sản phẩm lấy từ CSDL.
+            while ($row = $result->fetch_assoc()): 
+            ?>
             <tr>
                 <td><?php echo $row['id']; ?></td>
                 <td><img src="../<?php echo htmlspecialchars($row['image_url']); ?>" alt="" width="50"></td>
@@ -106,7 +113,7 @@ if ($action === 'add') {
                     <a href="?page=products&action=delete&id=<?php echo $row['id']; ?>" class="delete" onclick="return confirm('Are you sure you want to delete this product?');"><i class="fa-solid fa-trash"></i> Delete</a>
                 </td>
             </tr>
-            <?php endwhile; ?>
+            <?php endwhile; // Kết thúc vòng lặp while ?>
         </tbody>
     </table>
 <?php
