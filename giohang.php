@@ -1,39 +1,32 @@
+<?php
+// Lấy dữ liệu giỏ hàng từ session, nếu chưa có thì tạo mảng rỗng
+$cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Giỏ hàng - Fruit Farm</title>
-    <!-- Link font awesome for icons -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Material+Symbols+Rounded:opsz,wght, FILL, GRAD@48,400,0,0"
-    />
-    <!-- Link Swiper's CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-    />
-    <!-- CSS -->
-    <link rel="stylesheet" href="/fruitfarm/css/style.css" />
-    <link rel="stylesheet" href="/fruitfarm/css/giohang.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/giohang.css" />
+
   </head>
   <body>
     <?php include 'header.php'; ?>
 
     <main class="section-content">
-      <!-- Breadcrumb -->
       <div class="breadcrumb">
         <a href="index.php">Trang chủ</a>
         &gt;
         <span>Giỏ hàng của bạn</span>
       </div>
 
-      <!-- Cart Table -->
       <div class="cart-container">
         <table class="cart-table">
           <thead>
@@ -47,36 +40,55 @@
             </tr>
           </thead>
          <tbody id="cart-body">
+            <?php
+            // Kiểm tra xem giỏ hàng có rỗng không
+            if (!empty($cart)) :
+                $grandTotal = 0; // Biến để tính tổng tiền
+                // Lặp qua từng sản phẩm trong giỏ hàng
+                foreach ($cart as $productId => $item) :
+                    // Tính thành tiền cho mỗi sản phẩm
+                    $subtotal = $item['price'] * $item['quantity'];
+                    // Cộng dồn vào tổng tiền
+                    $grandTotal += $subtotal;
+            ?>
             <tr>
-              <td>
-                <img
-                  src="images/5.jpg"
-                  alt="Dâu Mỹ Montery"
-                  class="cart-product-img"
-                />
-              </td>
-              <td>
-                Dâu Mỹ Montery - hộp 500gr
-                <br />
-                <span style="color: red">(Hộp 500gr)</span>
-              </td>
-              <td>180,000₫</td>
-              <td>
-                <div class="quantity-control">
-                  <button class="decrease">-</button>
-                  <input type="number" value="1" min="1" />
-                  <button class="increase">+</button>
-                </div>
-              </td>
-              <td class="total-price">180,000₫</td>
-              <td>
-                <button class="remove-btn"><i class="fa fa-trash"></i></button>
-              </td>
+              <form action="update_cart.php" method="POST">
+                <td>
+                    <img src="images/<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" class="cart-product-img" />
+                </td>
+                <td>
+                    <?php echo htmlspecialchars($item['name']); ?>
+                </td>
+                <td><?php echo number_format($item['price'], 0, ',', '.'); ?>₫</td>
+                <td>
+                    <div class="quantity-control">
+                        <input type="number" name="quantity" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" class="quantity-input" />
+                        
+                        <input type="hidden" name="id" value="<?php echo $productId; ?>" />
+
+                        <button type="submit" class="btn-update">Cập nhật</button>
+                    </div>
+                </td>
+                <td class="total-price"><?php echo number_format($subtotal, 0, ',', '.'); ?>₫</td>
+                <td>
+                    <a href="remove_from_cart.php?id=<?php echo $productId; ?>" class="remove-btn" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');"><i class="fa fa-trash"></i></a>
+                </td>
+              </form>
             </tr>
-          </tbody>
+            <?php
+                endforeach;
+            else :
+                // Nếu giỏ hàng trống, hiển thị thông báo
+            ?>
+            <tr>
+                <td colspan="6" style="text-align: center;">🛒 Giỏ hàng của bạn đang trống!</td>
+            </tr>
+            <?php
+            endif;
+            ?>
+        </tbody>
         </table>
 
-        <!-- Cart Actions -->
         <div class="cart-actions">
           <div class="cart-notes">
             <textarea placeholder="Ghi chú đơn hàng"></textarea>
@@ -84,7 +96,12 @@
           <div class="cart-summary">
             <p>
               Tổng tiền:
-              <span id="grand-total">180,000₫</span>
+              <span id="grand-total">
+                  <?php
+                  // Nếu giỏ hàng không trống thì hiển thị tổng tiền, ngược lại hiển thị 0
+                  echo isset($grandTotal) ? number_format($grandTotal, 0, ',', '.') . '₫' : '0₫';
+                  ?>
+              </span>
             </p>
             <div class="cart-buttons">
               <a href="sanpham.php" class="btn continue-btn">
@@ -98,13 +115,38 @@
         </div>
       </div>
 
-      <!-- Back to Top Button -->
       <button id="backToTop" class="back-to-top">
         <i class="fas fa-arrow-up"></i>
       </button>
+      
+      <!-- Footer section -->
+      <footer class="footer-section">
+        <div class="section-content">
+          <p class="copyright-text">@ Fruit Farm</p>
+
+          <div class="social-link-list">
+            <a href="https://www.facebook.com/" class="social-link">
+              <i class="fa-brands fa-facebook"></i>
+            </a>
+
+            <a href="#" class="social-link">
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+
+            <a href="#" class="social-link">
+              <i class="fa-brands fa-youtube"></i>
+            </a>
+          </div>
+
+          <p class="policy-text">
+            <a href="#" class="policy-link">Privacy policy</a>
+            <span class="separator">*</span>
+            <a href="#" class="policy-link">Refund policy</a>
+          </p>
+        </div>
+      </footer>
     </main>
-    <!--Link Swiper script-->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="/fruitfarm/js/script.js"></script>
+    
+    <script src="js/script.js"></script>
   </body>
 </html>

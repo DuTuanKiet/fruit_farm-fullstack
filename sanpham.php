@@ -18,8 +18,8 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
-    <link rel="stylesheet" href="/fruitfarm/css/style.css" />
-    <link rel="stylesheet" href="/fruitfarm/css/sanpham.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/sanpham.css" />
   </head>
   <body>
     <?php include 'header.php'; ?>
@@ -50,7 +50,7 @@
           <p class="copyright-text">@ Fruit Farm</p>
 
           <div class="social-link-list">
-            <a href="#" class="social-link">
+            <a href="https://www.facebook.com/" class="social-link">
               <i class="fa-brands fa-facebook"></i>
             </a>
 

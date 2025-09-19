@@ -1,6 +1,5 @@
 <?php
-// admin/product_edit.php
-// File này được include bởi products.php
+// Trang quản lí sản phẩm
 
 // Lấy id sản phẩm từ URL và lấy thông tin từ CSDL
 $product_id = (int)$_GET['id'];

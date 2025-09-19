@@ -1,5 +1,4 @@
 <?php
-// admin/product_add.php
 // File này được include bởi products.php
 ?>
 <h3>Add New Product</h3>
@@ -23,6 +22,12 @@
             <label for="description">Description</label>
             <textarea id="description" name="description" rows="4"></textarea>
         </div>
+        
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="is_featured" name="is_featured" value="1">
+            <label for="is_featured">Show on Homepage (Featured Product)</label>
+        </div>
+
         <button type="submit" class="btn">Save Product</button>
         <a href="?page=products" style="margin-left: 10px;">Cancel</a>
     </form>

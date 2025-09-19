@@ -62,7 +62,7 @@
         <?php endif; ?>
     </span>
 
-        <a href="/fruitfarm/php/logout.php" class="logout-btn" style="display: <?php echo $isLoggedIn ? 'inline-block' : 'none'; ?>;">
+        <a href="/fruitfarm/php/auth/logout.php" class="logout-btn" style="display: <?php echo $isLoggedIn ? 'inline-block' : 'none'; ?>;">
         <i class="fa-solid fa-right-from-bracket"></i> Logout
         </a>
 

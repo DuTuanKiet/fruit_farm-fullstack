@@ -17,7 +17,7 @@
           <p class="copyright-text">@ Fruit Farm</p>
 
           <div class="social-link-list">
-            <a href="#" class="social-link">
+            <a href="https://www.facebook.com/" class="social-link">
               <i class="fa-brands fa-facebook"></i>
             </a>
 

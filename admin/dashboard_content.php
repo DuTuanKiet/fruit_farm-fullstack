@@ -1,6 +1,4 @@
 <?php
-// admin/dashboard_content.php
-// (File này được include bởi admin_dashboard.php nên không cần auth lại)
 
 // Lấy các số liệu thống kê cơ bản (đây là ví dụ, bạn sẽ cần các câu lệnh SQL thật)
 $total_users = $conn->query("SELECT COUNT(id) as count FROM users")->fetch_assoc()['count'];

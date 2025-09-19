@@ -238,3 +238,17 @@
     min-height: 80px;
   }
 }
+
+.btn-update {
+        padding: 5px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        margin-left: 5px;
+      }
+      .quantity-input {
+        width: 50px;
+        text-align: center;
+      }

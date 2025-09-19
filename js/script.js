@@ -1,4 +1,3 @@
-// =============================================================================
 const navbarMenu = document.querySelector(".navbar .main-menu");
 const menuOpenButton = document.querySelector("#menu-open-button");
 const menuCloseButton = document.querySelector("#menu-close-button");

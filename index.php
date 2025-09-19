@@ -1,6 +1,16 @@
 <?php
-// Đặt đoạn code này ở ĐẦU file index.php
 require_once 'php/db_connect.php'; 
+
+// Lấy 6 sản phẩm mới nhất từ CSDL để hiển thị ở "Our Menu"
+$products = []; // Khởi tạo một mảng rỗng để chứa sản phẩm
+// Trong file index.php
+$sql = "SELECT id, name, description, image_url FROM products WHERE is_featured = 1 ORDER BY id DESC LIMIT 6";
+$result = $conn->query($sql);
+// Kiểm tra xem câu lệnh có chạy thành công và có trả về ít nhất một sản phẩm hay không.
+if ($result && $result->num_rows > 0) {
+    // Lấy tất cả các dòng kết quả vào một mảng
+    $products = $result->fetch_all(MYSQLI_ASSOC);
+}
 
 // Xử lý khi người dùng gửi form phản hồi
 if (isset($_POST['submit_feedback'])) {
@@ -119,42 +129,26 @@ if (isset($_POST['submit_feedback'])) {
         <h2 class="section-title">Our Menu</h2>
         <div class="section-content">
           <ul class="menu-list">
-            <li class="menu-item">
-              <img src="images/3.jpg" alt="hihi" class="menu-image" />
-              <h3 class="name">hihi</h3>
-              <p class="text">Xin chào cà phê của bạn nè</p>
-            </li>
+    <?php if (!empty($products)): ?>
+        <?php foreach ($products as $product): ?>
+            <a href="chitietsp.php?id=<?php echo $product['id']; ?>" class="product-link">
+                <li class="menu-item">
+                    <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="menu-image" />
+                    <div class="menu-content">
+                        <h3 class="name"><?php echo htmlspecialchars($product['name']); ?></h3>
+                        <p class="text"><?php echo htmlspecialchars($product['description']); ?></p>
+                    </div>
 
-            <li class="menu-item">
-              <img src="images/4.jpg" alt="haha" class="menu-image" />
-              <h3 class="name">haha</h3>
-              <p class="text">Xin chào cà phê của bạn nè</p>
-            </li>
-
-            <li class="menu-item">
-              <img src="images/4.jpg" alt="huhu" class="menu-image" />
-              <h3 class="name">huhu</h3>
-              <p class="text">Xin chào cà phê của bạn nè</p>
-            </li>
-
-            <li class="menu-item">
-              <img src="images/4.jpg" alt="huhu" class="menu-image" />
-              <h3 class="name">kkk</h3>
-              <p class="text">Xin chào cà phê của bạn nè</p>
-            </li>
-
-            <li class="menu-item">
-              <img src="images/4.jpg" alt="huhu" class="menu-image" />
-              <h3 class="name">eeee</h3>
-              <p class="text">Xin chào cà phê của bạn nè</p>
-            </li>
-
-            <li class="menu-item">
-              <img src="images/4.jpg" alt="huhu" class="menu-image" />
-              <h3 class="name">aaaa</h3>
-              <p class="text">Xin chào cà phê của bạn nè</p>
-            </li>
-          </ul>
+                    <div class="menu-item-overlay">
+    <button class="btn-quick-action add-to-cart-btn" data-id="<?php echo $product['id']; ?>">
+        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+    </button>
+</div>
+                </li>
+            </a>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</ul>
           <div class="see-more">
             <a href="sanpham.php" class="see-more-btn">Xem thêm sản phẩm</a>
           </div>
@@ -326,7 +320,7 @@ if (isset($_POST['submit_feedback'])) {
           <p class="copyright-text">@ Fruit Farm</p>
 
           <div class="social-link-list">
-            <a href="#" class="social-link">
+            <a href="https://www.facebook.com/" class="social-link">
               <i class="fa-brands fa-facebook"></i>
             </a>
 
