@@ -1,51 +1,82 @@
 <?php
+// FILE: admin/products.php (PHIÊN BẢN ĐÃ SỬA LỖI HOÀN CHỈNH)
+
 // --- PHẦN 1: XỬ LÝ DỮ LIỆU FORM KHI GỬI LÊN (POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    // Xử lý LƯU SẢN PHẨM MỚI
+    // === XỬ LÝ LƯU SẢN PHẨM MỚI ===
     if ($action === 'save_new') {
         $name = $_POST['name'];
         $price = $_POST['price'];
-        $image_url = $_POST['image_url'];
         $description = $_POST['description'];
-        // [FIXED] Lấy giá trị checkbox is_featured ngay tại đây
         $is_featured = isset($_POST['is_featured']) ? 1 : 0;
-
-        // [FIXED] Chuẩn bị câu lệnh INSERT đầy đủ
-        $stmt = $conn->prepare("INSERT INTO products (name, price, image_url, description, is_featured) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sdssi", $name, $price, $image_url, $description, $is_featured);
         
-        $stmt->execute();
-        echo "<script>alert('Product added successfully!'); window.location.href='?page=products';</script>";
-        exit;
+        $image_path_for_db = "";
+        if (isset($_FILES["product_image"]) && $_FILES["product_image"]["error"] == 0) {
+            $target_dir = "../images/";
+            $file_name = basename($_FILES["product_image"]["name"]);
+            $new_file_name = uniqid() . '_' . $file_name;
+            $target_file = $target_dir . $new_file_name;
+
+            if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
+                $image_path_for_db = "images/" . $new_file_name;
+            }
+        }
+        
+        if (!empty($image_path_for_db)) {
+            $stmt = $conn->prepare("INSERT INTO products (name, price, image_url, description, is_featured) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sdssi", $name, $price, $image_path_for_db, $description, $is_featured);
+            if ($stmt->execute()) {
+                echo "<script>alert('Product added successfully!'); window.location.href='?page=products';</script>";
+            } else {
+                echo "<script>alert('Error adding product to database.');</script>";
+            }
+            exit;
+        } else {
+             echo "<script>alert('Image upload failed. Product not saved.'); window.location.href='?page=products&action=add';</script>";
+             exit;
+        }
     }
 
-    // Xử lý CẬP NHẬT SẢN PHẨM
+    // === XỬ LÝ CẬP NHẬT SẢN PHẨM ===
     if ($action === 'update') {
         $id = $_POST['id'];
         $name = $_POST['name'];
         $price = $_POST['price'];
-        $image_url = $_POST['image_url'];
         $description = $_POST['description'];
-        // [UPGRADED] Thêm khả năng cập nhật trạng thái is_featured
         $is_featured = isset($_POST['is_featured']) ? 1 : 0;
+        $current_image_url = $_POST['current_image_url'];
 
-        // [UPGRADED] Cập nhật câu lệnh UPDATE để bao gồm cả is_featured
+        $image_path_for_db = $current_image_url;
+
+        if (isset($_FILES["product_image"]) && $_FILES["product_image"]["size"] > 0) {
+            $target_dir = "../images/";
+            $file_name = basename($_FILES["product_image"]["name"]);
+            $new_file_name = uniqid() . '_' . $file_name;
+            $target_file = $target_dir . $new_file_name;
+
+            if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
+                $image_path_for_db = "images/" . $new_file_name;
+                if (!empty($current_image_url) && file_exists("../" . $current_image_url)) {
+                    unlink("../" . $current_image_url);
+                }
+            }
+        }
+
         $stmt = $conn->prepare("UPDATE products SET name = ?, price = ?, image_url = ?, description = ?, is_featured = ? WHERE id = ?");
-        $stmt->bind_param("sdssii", $name, $price, $image_url, $description, $is_featured, $id);
-        
+        $stmt->bind_param("sdssii", $name, $price, $image_path_for_db, $description, $is_featured, $id);
         $stmt->execute();
         echo "<script>alert('Product updated successfully!'); window.location.href='?page=products';</script>";
         exit;
     }
 }
 
-// --- PHẦN 2: XỬ LÝ HÀNH ĐỘNG TỪ URL (GET) ---
-$action = $_GET['action'] ?? 'list'; // Mặc định là hiển thị danh sách
+// --- PHẦN 2: XỬ LÝ CÁC HÀNH ĐỘNG GET (HIỂN THỊ TRANG) ---
+$action = $_GET['action'] ?? 'list';
 
-// Xử lý XÓA SẢN PHẨM
 if ($action === 'delete' && isset($_GET['id'])) {
+    // Logic xóa sản phẩm (đã đúng)
     $id_to_delete = (int)$_GET['id'];
     $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
     $stmt->bind_param("i", $id_to_delete);
@@ -56,26 +87,18 @@ if ($action === 'delete' && isset($_GET['id'])) {
 
 // --- PHẦN 3: HIỂN THỊ GIAO DIỆN TƯƠNG ỨNG ---
 if ($action === 'add') {
-    // Nếu action là 'add', gọi form thêm mới
     include 'product_add.php';
-
 } elseif ($action === 'edit' && isset($_GET['id'])) {
-    // Nếu action là 'edit', gọi form sửa
-    // Lấy thông tin sản phẩm hiện tại để điền vào form
+    // Chỉ LẤY DỮ LIỆU (SELECT) để hiển thị form
     $id_to_edit = (int)$_GET['id'];
     $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
     $stmt->bind_param("i", $id_to_edit);
     $stmt->execute();
     $result = $stmt->get_result();
-    $product = $result->fetch_assoc(); // Biến $product này sẽ được dùng trong product_edit.php
-    
+    $product = $result->fetch_assoc();
     include 'product_edit.php';
-
-// Trong file: admin/products.php
-
 } else {
     // Mặc định, hiển thị danh sách sản phẩm
-    // Câu lệnh này lấy dữ liệu và gán vào biến $result
     $result = $conn->query("SELECT * FROM products ORDER BY id ASC");
 ?>
     <h2>Product Management</h2>
@@ -92,30 +115,21 @@ if ($action === 'add') {
             </tr>
         </thead>
         <tbody>
-            <?php 
-            // để duyệt qua từng dòng sản phẩm lấy từ CSDL.
-            while ($row = $result->fetch_assoc()): 
-            ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
             <tr>
                 <td><?php echo $row['id']; ?></td>
-                <td><img src="../<?php echo htmlspecialchars($row['image_url']); ?>" alt="" width="50"></td>
+                <td><img src="../<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['name']); ?>" width="60" style="border-radius: 5px;"></td>
                 <td><?php echo htmlspecialchars($row['name']); ?></td>
                 <td><?php echo number_format($row['price']); ?>₫</td>
-                <td>
-                    <?php if ($row['is_featured'] == 1): ?>
-                        <span style="color: green; font-weight: bold;">Yes</span>
-                    <?php else: ?>
-                        <span style="color: #999;">No</span>
-                    <?php endif; ?>
-                </td>
+                <td><?php echo $row['is_featured'] == 1 ? '<span style="color: green; font-weight: bold;">Yes</span>' : '<span style="color: #999;">No</span>'; ?></td>
                 <td class="actions">
-                    <a href="?page=products&action=edit&id=<?php echo $row['id']; ?>"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-                    <a href="?page=products&action=delete&id=<?php echo $row['id']; ?>" class="delete" onclick="return confirm('Are you sure you want to delete this product?');"><i class="fa-solid fa-trash"></i> Delete</a>
+                    <a href="?page=products&action=edit&id=<?php echo $row['id']; ?>">Edit</a>
+                    <a href="?page=products&action=delete&id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?');">Delete</a>
                 </td>
             </tr>
-            <?php endwhile; // Kết thúc vòng lặp while ?>
+            <?php endwhile; ?>
         </tbody>
     </table>
 <?php
-} 
+}
 ?>

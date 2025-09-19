@@ -35,7 +35,8 @@ $total_price = 0;
 if ($mode === 'buy_now' && isset($_SESSION['buy_now_item'])) {
     // TRƯỜNG HỢP 1: MUA NGAY
     $item = $_SESSION['buy_now_item'];
-    $stmt = $conn->prepare("SELECT id, name, price, image_url FROM products WHERE id IN ($placeholders)"); 
+    $stmt = $conn->prepare("SELECT id, name, price, image_url FROM products WHERE id = ?"); 
+    
     $stmt->bind_param("i", $item['product_id']);
     $stmt->execute();
     $product = $stmt->get_result()->fetch_assoc();
@@ -51,7 +52,7 @@ if ($mode === 'buy_now' && isset($_SESSION['buy_now_item'])) {
         $placeholders = implode(',', array_fill(0, count($product_ids), '?'));
         $types = str_repeat('i', count($product_ids));
 
-        $stmt = $conn->prepare("SELECT id, name, price FROM products WHERE id IN ($placeholders)");
+        $stmt = $conn->prepare("SELECT id, name, image_url, price FROM products WHERE id IN ($placeholders)");
         $stmt->bind_param($types, ...$product_ids);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -188,7 +189,6 @@ if ($mode === 'buy_now' && isset($_SESSION['buy_now_item'])) {
 </table>
 
         <button type="submit" form="checkoutForm" class="btn-submit">
-             <i class="fa fa-lock"></i>
              Xác nhận đặt hàng
         </button>
         
