@@ -12,6 +12,10 @@ if ($result && $result->num_rows > 0) {
     $products = $result->fetch_all(MYSQLI_ASSOC);
 }
 
+// Bắt lỗi Fb
+// var_dump($_POST);
+// die();
+
 // Xử lý khi người dùng gửi form phản hồi
 if (isset($_POST['submit_feedback'])) {
     $name = trim($_POST['name']);
@@ -297,6 +301,11 @@ if (isset($_POST['submit_feedback'])) {
                         </div>
                     </div>
                     
+                    <div class="form-group">
+            <label for="subject">Chủ đề</label>
+            <input type="text" id="subject" name="subject" class="form-input" placeholder="Chủ đề tin nhắn" required>
+        </div>
+
                     <div class="form-group">
                         <label for="message">Nội dung tin nhắn</label>
                         <textarea id="message" name="message" rows="5" class="form-input" placeholder="Nội dung bạn muốn gửi..." required></textarea>
