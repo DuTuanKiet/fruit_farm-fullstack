@@ -29,8 +29,7 @@
       <section class="product-section">
         <h2 class="section-title">My Products</h2>
         <div class="product-list">
-          
-          </div>
+        </div>
 
         <!-- Pagination -->
         <div class="pagination">

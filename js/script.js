@@ -144,23 +144,24 @@ async function loadProducts(page = 1) {
     if (data.products && data.products.length > 0) {
       data.products.forEach((p) => {
         productsWrapper.innerHTML += `
-                    <div class="product-card-container">
-                        <a href="chitietsp.php?id=${p.id}" class="product-link">
-                            <div class="product-card">
-                                <img src="${p.image_url}" alt="${p.name}" />
-                                <h3>${p.name}</h3>
-                                <p>${p.price.toLocaleString("vi-VN")}₫</p>
-                            </div>
-                        </a>
-                        <div class="product-card-actions">
-                            <button class="btn-sm add-to-cart-btn" data-id="${
-                              p.id
-                            }"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
-                            <button class="btn-sm buy-now-btn" data-id="${
-                              p.id
-                            }">Mua Ngay</button>
-                        </div>
-                    </div>`;
+        <div class="product-card-container">
+            <a href="chitietsp.php?id=${p.id}" class="product-image-link">
+                <div class="product-image-wrapper">
+                    <img src="${p.image_url}" alt="${p.name}" class="product-image"/>
+                </div>
+            </a>
+            <div class="product-info">
+                <h3 class="product-name">
+                    <a href="chitietsp.php?id=${p.id}">${p.name}</a>
+                </h3>
+                <p class="product-price">${p.price.toLocaleString("vi-VN")}₫</p>
+                <div class="product-actions">
+                    <button class="add-to-cart-btn btn-sm" data-id="${p.id}"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
+                    <button class="buy-now-btn btn-sm" data-id="${p.id}">Mua Ngay</button>
+                </div>
+            </div>
+        </div>
+    `;
       });
       updatePagination(data.totalPages, data.currentPage);
     } else {

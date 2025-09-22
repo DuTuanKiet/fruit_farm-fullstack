@@ -655,24 +655,21 @@ a.product-link:hover {
 }
 
 .menu-item {
-    background: #1c1c1c; 
+    background: #2a2a2a; /* Nền xám tối dễ chịu hơn màu đen */
     border-radius: 12px;
-    overflow: hidden; 
+    overflow: hidden;
     text-align: center;
-    flex-basis: 320px; 
-    flex-grow: 1; 
-    max-width: 350px; 
-    
+    width: calc(33.333% - 20px);
     display: flex;
     flex-direction: column;
-
-    
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #444; /* Thêm viền nhẹ */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .menu-item:hover {
     transform: translateY(-8px); 
-    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1); 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--secondary-color); /* Đổi màu viền khi hover */
 }
 
 
@@ -704,10 +701,11 @@ a.product-link:hover {
 
 
 .menu-item .text {
-    font-size: var(--font-size-m);
+    font-size: 0.95rem; 
     color: #ccc; 
-    line-height: 1.5;
+    line-height: 1.6; 
     flex-grow: 1; 
+    margin-bottom: 20px; 
 }
 
 /* === RESPONSIVE DESIGN === */
@@ -718,6 +716,51 @@ a.product-link:hover {
         flex-basis: calc(50% - 15px); 
         max-width: none; 
     }
+}
+
+/* Vùng chứa các nút bấm trong "Our Menu" */
+.menu-item-actions {
+    padding: 0 20px 20px 20px;
+    margin-top: auto;
+    display: flex;
+    gap: 8px; 
+}
+
+/* Định dạng CHUNG cho cả 2 nút */
+.menu-item-actions button {
+    flex: 1; 
+    padding: 10px 5px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 2px solid var(--secondary-color);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+/* Nút chính: MUA NGAY (Có nền màu) */
+.menu-item-actions .buy-now-btn {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+.menu-item-actions .buy-now-btn:hover {
+    background-color: #e08914;
+    border-color: #e08914;
+}
+
+/* Nút phụ: THÊM VÀO GIỎ (Trong suốt, chỉ có viền) */
+.menu-item-actions .add-to-cart-btn {
+    background-color: transparent;
+    color: var(--secondary-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.menu-item-actions .add-to-cart-btn:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
 }
 
 /* Cho Mobile - Hiển thị 1 cột */

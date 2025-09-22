@@ -4,7 +4,7 @@ require_once '../db_connect.php';
 header('Content-Type: application/json');
 
 // --- CẤU HÌNH PHÂN TRANG ---
-$products_per_page = 8;
+$products_per_page = 10;
 
 $total_products_result = $conn->query("SELECT COUNT(id) as total FROM products");
 $total_products = $total_products_result->fetch_assoc()['total'];

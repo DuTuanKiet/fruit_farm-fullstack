@@ -99,7 +99,7 @@ if (isset($_POST['submit_feedback'])) {
       <section class="about-section" id="about">
         <div class="section-content">
           <div class="about-image-wrapper">
-            <img src="images/2.jpg" alt="About" class="about-image" />
+            <img src="images/about-us.jpg" alt="About" class="about-image" />
           </div>
           <div class="about-details">
             <h2 class="section-title">About Us</h2>
@@ -135,21 +135,23 @@ if (isset($_POST['submit_feedback'])) {
           <ul class="menu-list">
     <?php if (!empty($products)): ?>
         <?php foreach ($products as $product): ?>
-            <a href="chitietsp.php?id=<?php echo $product['id']; ?>" class="product-link">
-                <li class="menu-item">
+            <li class="menu-item">
+                <a href="chitietsp.php?id=<?php echo $product['id']; ?>" class="product-link">
                     <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="menu-image" />
                     <div class="menu-content">
                         <h3 class="name"><?php echo htmlspecialchars($product['name']); ?></h3>
                         <p class="text"><?php echo htmlspecialchars($product['description']); ?></p>
                     </div>
-
-                    <div class="menu-item-overlay">
-    <button class="btn-quick-action add-to-cart-btn" data-id="<?php echo $product['id']; ?>">
-        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-    </button>
-</div>
-                </li>
-            </a>
+                </a>
+                <div class="menu-item-actions">
+                    <button class="add-to-cart-btn" data-id="<?php echo $product['id']; ?>">
+                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                    </button>
+                    <button class="buy-now-btn" data-id="<?php echo $product['id']; ?>">
+            Mua Ngay
+        </button>
+                </div>
+            </li>
         <?php endforeach; ?>
     <?php endif; ?>
 </ul>

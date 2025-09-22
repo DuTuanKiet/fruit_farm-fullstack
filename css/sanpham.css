@@ -33,6 +33,7 @@
   --site-max-width: 1300px;
 }
 
+/* --- Cài đặt chung cho trang --- */
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
@@ -40,45 +41,16 @@ body {
   color: var(--black-color);
 }
 
-header {
-  background: var(--primary-color);
-  padding: 15px 30px;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-logo .logo-text {
-  color: var(--white-color);
-}
-
-.nav-menu {
-  display: flex;
-  gap: 20px;
-}
-
-.nav-link {
-  color: var(--white-color);
-  transition: 0.3s;
-}
-
-.nav-link:hover {
-  color: var(--secondary-color);
-}
-
-/* Product section */
+/* --- Khu vực chính chứa sản phẩm --- */
 .product-section {
   padding: 100px 20px;
-  max-width: 1300px;
-  margin: auto;
+  max-width: var(--site-max-width);
+  margin: 0 auto;
 }
 
 .section-title {
   text-align: center;
-  padding: 60px 0 60px;
+  margin-bottom: 60px; /* Dùng margin thay cho padding để hợp lý hơn */
   text-transform: uppercase;
   font-size: var(--font-size-xl);
   font-weight: 600;
@@ -95,162 +67,129 @@ header {
   background: var(--secondary-color);
 }
 
+/* --- Lưới chứa TẤT CẢ sản phẩm --- */
 .product-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  justify-content: center;
-}
-.product-card {
-  background: var(--white-color);
-  border-radius: var(--border-radius-s);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: calc(20% - 30px); /* 5 sản phẩm 1 hàng */
-  min-width: 220px;
-  text-align: center;
-  padding: 20px;
-  transition: transform 0.3s ease;
-  position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
 }
 
-.product-card:hover {
-  transform: translateY(-5px);
+/* --- Card Sản Phẩm --- */
+.product-card-container {
+    width: calc(20% - 24px);
+    min-width: 220px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Badge giảm giá */
-.product-card .badge-discount {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: #e53935;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 4px;
+.product-card-container:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Hình Ảnh --- */
+.product-image-link {
+    display: block;
+}
+
+.product-image-wrapper {
+    background-color: #fff;
 }
 
 .product-image {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: var(--border-radius-s);
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    display: block;
 }
 
+/* --- Vùng Thông Tin (Tên, Giá, Nút) --- */
+.product-info {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    align-items: center;
+    text-align: center;
+}
+
+/* Tên sản phẩm */
 .product-name {
-  margin: 15px 0 10px;
-  font-size: var(--font-size-m);
-  font-weight: 600;
-  color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+    min-height: 48px;
 }
 
-/* Giá */
+.product-name a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Giá sản phẩm */
 .product-price {
-  margin: 8px 0 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--secondary-color);
 }
 
-.price-current {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--secondary-color);
-}
-
-.price-old {
-  font-size: 0.9rem;
-  color: #888;
-  text-decoration: line-through;
-  margin-left: 6px;
-}
-
-/* Meta: đánh giá + đã bán */
-.product-meta {
-  font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 15px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
+/* --- Vùng Nút Bấm --- */
 .product-actions {
-  display: flex;
-  flex-direction: column; /* xếp dọc */
-  gap: 8px; /* khoảng cách giữa 2 nút */
-  margin-top: 12px;
+    margin-top: auto;
+    padding-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
 }
 
-/* Nút mua ngay */
+/* Định dạng CHUNG cho cả 2 nút */
+.product-actions button {
+    flex: 1;
+    padding: 8px 5px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/* Nút chính: Mua Ngay */
 .buy-now-btn {
-  padding: 10px 16px;
-  background: var(--secondary-color);
-  color: #fff;
-  border: none;
-  border-radius: var(--border-radius-m);
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-
 .buy-now-btn:hover {
-  background: var(--primary-color);
+    background-color: #e08914;
 }
 
-.buy-now-btn i {
-  font-size: 14px;
+/* Nút phụ: Thêm vào giỏ (Dạng chữ) */
+.add-to-cart-btn {
+    background-color: transparent;
+    color: #888;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.add-to-cart-btn:hover {
+    background-color: #f0f0f0;
+    color: var(--primary-color);
 }
 
-/* Nút thêm giỏ */
-.buy-btn {
-  padding: 10px 16px;
-  background: var(--secondary-color);
-  color: var(--white-color);
-  border: none;
-  border-radius: var(--border-radius-m);
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.buy-btn i {
-  font-size: 14px;
-}
-
-.buy-btn:hover {
-  background: var(--primary-color);
-}
-
-/* Cart link */
-.nav-item.cart {
-  position: relative;
-}
-
-.nav-item.cart .fa-shopping-bag {
-  font-size: 20px;
-  margin-right: 6px;
-}
-
-/* Badge số lượng */
-.cart-count {
-  position: absolute;
-  top: -8px;
-  left: 12px;
-  background: red;
-  color: #fff;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 50%;
-}
-
-/* Pagination */
+/* --- Phân trang --- */
 .pagination {
   margin-top: 40px;
   display: flex;
