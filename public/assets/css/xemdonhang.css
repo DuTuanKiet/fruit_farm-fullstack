@@ -1,0 +1,210 @@
+:root {
+  --primary-color: #6d9f58;     
+  --secondary-color: #5d8c47;   
+  --white-color: #ffffff;
+  --border-radius-s: 8px;
+}
+
+body {
+    /* Đồng bộ màu nền với --light-pink-color: #f9f9f9 */
+    background-color: #f9f9f9; 
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.order-list {
+    max-width: 1100px; 
+    /* Bỏ margin top 40px, đã thay bằng padding-top: 100px trong PHP */
+    margin: 0 auto 80px; 
+    padding: 0 20px;
+}
+
+.order-list h2 {
+    font-size: 30px; 
+    font-weight: 700;
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 50px; 
+    text-transform: uppercase;
+}
+
+/* Gạch chân tiêu đề dùng màu xanh lá chủ đạo */
+.order-list h2::after {
+    content: "";
+    display: block;
+    width: 80px; 
+    height: 4px; 
+    background: #6d9f58; /* Màu xanh lá chủ đạo */
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+/* =================================== */
+/* 2. Lưới hiển thị đơn hàng */
+/* =================================== */
+.order-grid {
+    display: grid;
+    /* ✅ FIX LỖI 1 CỘT: Thiết lập cố định 2 cột trên desktop (màn hình rộng hơn 768px) */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 30px; 
+    align-items: stretch;
+}
+
+/* =================================== */
+/* 3. Card đơn hàng */
+/* =================================== */
+.order-item {
+    background: #fff;
+    border-radius: 16px; 
+    padding: 25px; 
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08); 
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.order-item:hover {
+    transform: translateY(-8px); 
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15); 
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.order-id {
+    font-weight: 700;
+    font-size: 17px;
+    color: #2c3e50;
+}
+
+.order-status {
+    padding: 7px 14px;
+    border-radius: 25px; 
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    flex-shrink: 0;
+}
+
+/* Màu trạng thái */
+.status-pending {
+    background-color: #fff4e1;
+    color: #e67e22; /* Cam */
+}
+.status-completed {
+    background-color: #e9f8ef;
+    color: #27ae60; /* Xanh lá */
+}
+.status-cancelled {
+    background-color: #fdecea;
+    color: #c0392b; /* Đỏ */
+}
+
+.order-info {
+    line-height: 2; 
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.order-info i {
+    color: #6d9f58; /* Màu xanh lá chủ đạo */
+    width: 20px;
+    text-align: center;
+}
+
+.total-amount {
+    font-weight: 700;
+    font-size: 16px;
+    color: #e74c3c; /* Màu đỏ cho tổng tiền */
+}
+
+/* =================================== */
+/* 4. Nút Xem chi tiết */
+/* =================================== */
+.btn-detail {
+    margin-top: 20px;
+    text-align: center;
+    padding: 12px 0;
+    /* Đồng bộ với màu --secondary-color (Avocado Green) */
+    background: #6d9f58; 
+    color: white;
+    font-weight: 600;
+    border-radius: 10px; 
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-detail:hover {
+    background: #5d8c47; /* Màu đậm hơn khi hover */
+    box-shadow: 0 4px 10px rgba(109, 159, 88, 0.4);
+    transform: translateY(-2px);
+}
+
+/* --- Phân trang --- */
+.pagination {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.page-link {
+  min-width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-s);
+  color: var(--primary-color);
+  background: var(--white-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  transition: 0.3s;
+  text-decoration: none;
+}
+
+.page-link:hover {
+  background: var(--secondary-color);
+  color: var(--white-color);
+}
+
+.page-link.active {
+  background: var(--primary-color);
+  color: var(--white-color);
+  cursor: default;
+}
+
+/* =================================== */
+/* 6. Responsive */
+/* =================================== */
+@media (max-width: 768px) {
+    .order-grid {
+        /* Chuyển sang 1 cột trên mobile/tablet đứng */
+        grid-template-columns: 1fr; 
+        gap: 20px;
+    }
+}
+
+/* Nếu bạn muốn lưới 3 cột trên màn hình siêu rộng (như trang sản phẩm) */
+@media (min-width: 1400px) {
+    .order-grid {
+        grid-template-columns: repeat(3, 1fr); 
+    }
+}

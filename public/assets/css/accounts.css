@@ -1,0 +1,239 @@
+/* ------------------------------------------------------------------
+ * quanlytaikhoan.css (Dùng cho accounts.php)
+ * Đồng bộ với admin.css và quanlydonhang.css
+ * ------------------------------------------------------------------ */
+
+.admin-content-wrapper {
+  padding: 25px;
+  background: var(--bg-color, #f9fafb);
+  min-height: 100vh;
+}
+
+/* === GRID CHÍNH === */
+.account-management-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+/* === CARD CHỨA MỖI BẢNG === */
+.account-column {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm, 0 2px 10px rgba(0,0,0,0.06));
+  padding: 22px;
+  transition: all 0.25s ease;
+}
+
+.account-column:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow, 0 4px 18px rgba(0,0,0,0.08));
+}
+
+/* === TIÊU ĐỀ MỖI BẢNG === */
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+.column-header h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color, #111);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-header i {
+  color: var(--primary-color, #0d6efd);
+  font-size: 1.1rem;
+}
+
+/* === NÚT THÊM ADMIN === */
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: var(--primary-color, #2563eb);
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+  transition: all 0.25s ease;
+}
+.btn-add:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1.5px);
+}
+
+/* === BẢNG DANH SÁCH === */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  table-layout: fixed;
+}
+
+.styled-table thead th {
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 12px 10px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.styled-table tbody td {
+  padding: 11px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+.styled-table th:first-child,
+.styled-table td:first-child {
+  text-align: center;
+  width: 55px;
+}
+
+.styled-table th:nth-child(2),
+.styled-table td:nth-child(2) {
+  width: 25%;
+}
+
+.styled-table th:nth-child(3),
+.styled-table td:nth-child(3) {
+  width: 28%;
+}
+
+.styled-table th:nth-child(4),
+.styled-table td:nth-child(4),
+.styled-table th:nth-child(5),
+.styled-table td:nth-child(5) {
+  text-align: center;
+}
+
+/* === HOVER === */
+.styled-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* === BADGE TRẠNG THÁI === */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.25s ease;
+}
+
+/* Active (xanh đồng bộ với 'Hoàn thành' đơn hàng) */
+.status-active {
+  background: #e8f9ed;
+  color: #198754;
+  animation: fadeHighlight 0.5s ease-out;
+}
+
+/* Disabled */
+.status-disabled {
+  background: #fdeaea;
+  color: #dc3545;
+}
+
+@keyframes fadeHighlight {
+  0% { box-shadow: 0 0 0 4px rgba(25,135,84,0.15); }
+  100% { box-shadow: none; }
+}
+
+/* === ACTIONS === */
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.actions a {
+  color: var(--secondary-color, #6b7280);
+  font-size: 1.05rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.actions a:hover {
+  transform: scale(1.1);
+  color: var(--primary-color, #2563eb);
+}
+.actions a.action-disable:hover {
+  color: var(--danger, #dc2626);
+}
+.actions a.action-enable:hover {
+  color: var(--success, #16a34a);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 992px) {
+  .account-management-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .styled-table,
+  .styled-table thead,
+  .styled-table tbody,
+  .styled-table th,
+  .styled-table td,
+  .styled-table tr {
+    display: block;
+  }
+
+  .styled-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .styled-table tr {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .styled-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
+  }
+
+  .styled-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    font-weight: 600;
+    color: var(--secondary-color, #6b7280);
+    text-align: left;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
+}

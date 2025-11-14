@@ -1,0 +1,238 @@
+/* css/feedback.css */
+
+.content-wrapper {
+    padding: 0;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.feedback-container {
+    display: flex;
+    gap: 25px;
+    /* Chiều cao được tính toán để lấp đầy không gian còn lại */
+    height: calc(100vh - 160px); 
+}
+
+/* --- Cột danh sách feedback (Bên trái) --- */
+.feedback-list-wrapper {
+    width: 380px;
+    flex-shrink: 0;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.feedback-list-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.feedback-list-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.feedback-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto; /* Cho phép cuộn khi danh sách dài */
+    flex-grow: 1;
+}
+
+.feedback-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.feedback-item:last-child {
+    border-bottom: none;
+}
+
+.feedback-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Style cho item được chọn */
+.feedback-item.active {
+    background-color: #e9f2ff;
+    border-right: 4px solid var(--primary-color);
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.item-name {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.item-time {
+    font-size: 0.8em;
+    color: var(--light-text);
+}
+
+.item-subject {
+    font-size: 0.9em;
+    color: var(--text-color);
+    font-weight: 500;
+    /* Ngăn tiêu đề quá dài làm vỡ layout */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dấu chấm cho feedback chưa đọc */
+.unread-dot {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+/* --- Cột chi tiết feedback (Bên phải) --- */
+.feedback-detail-wrapper {
+    flex-grow: 1;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Placeholder khi chưa chọn feedback */
+#feedback-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    color: var(--light-text);
+    transition: opacity 0.3s ease;
+}
+
+#feedback-placeholder.hidden {
+    display: none;
+}
+
+#feedback-placeholder i {
+    font-size: 4em;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+}
+
+/* Nội dung chi tiết */
+#feedback-content {
+    display: none; /* Ẩn mặc định */
+    flex-direction: column;
+    height: 100%;
+}
+
+#feedback-content.visible {
+    display: flex; /* Hiện khi được chọn */
+}
+
+.detail-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.detail-subject {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+}
+
+.sender-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sender-info strong {
+    color: var(--text-color);
+}
+
+.sender-info a {
+    font-size: 0.9em;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.sender-info a:hover {
+    text-decoration: underline;
+}
+
+.detail-body {
+    padding: 25px;
+    flex-grow: 1;
+    overflow-y: auto;
+    line-height: 1.7;
+    font-size: 1em;
+    white-space: pre-wrap; /* Giữ lại các lần xuống dòng của người dùng */
+}
+
+.detail-actions {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    background-color: #fdfdfd;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.btn-action {
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-reply {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+.btn-reply:hover {
+    background-color: #0b5ed7;
+}
+
+.btn-delete {
+    background-color: transparent;
+    color: var(--danger);
+    border-color: var(--danger);
+    margin-left: 10px;
+}
+.btn-delete:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* Thông báo khi không có feedback */
+.no-feedback {
+    text-align: center;
+    padding: 40px;
+    color: var(--light-text);
+}

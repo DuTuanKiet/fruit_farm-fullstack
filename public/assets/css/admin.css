@@ -1,0 +1,584 @@
+/* admin/admin.css (VERSION NÂNG CẤP) */
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #6c757d;
+  --bg-color: #f8f9fa;
+  --sidebar-bg: #ffffff;
+  --text-color: #212529;
+  --light-text: #6c757d;
+  --border-color: #dee2e6;
+  --shadow: 0 4px 25px rgba(0, 0, 0, 0.07);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --success: #198754;
+  --danger: #dc3545;
+  --warning: #ffc107;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Be Vietnam Pro", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+}
+
+.admin-wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 25px 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sidebar-header i {
+  font-size: 2em;
+  color: var(--primary-color);
+}
+
+.sidebar-header h2 {
+  color: var(--text-color);
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 20px 0;
+  flex-grow: 1;
+}
+
+.sidebar-menu li a {
+  display: flex;
+  align-items: center;
+  padding: 15px 25px;
+  color: var(--light-text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  border-left: 4px solid transparent;
+}
+
+.sidebar-menu li a i {
+  margin-right: 15px;
+  font-size: 1.1em;
+  width: 25px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-menu li a:hover {
+  background-color: #f1f3f5;
+  color: var(--primary-color);
+}
+
+.sidebar-menu li a:hover i {
+  transform: scale(1.1);
+}
+
+.sidebar-menu li a.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-left-color: var(--warning);
+  font-weight: 600;
+}
+
+/* --- Main Content --- */
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- FIX layout không cho bảng đè co sidebar --- */
+.main-content {
+  flex-grow: 1;
+  min-width: 0; /* Cho phép co giãn nội dung bên phải */
+  overflow-x: hidden;
+}
+
+.account-management-grid {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Chống tràn ngang bảng làm ép sidebar */
+.account-column,
+.styled-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.styled-table table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+/* Fix khi sidebar bị ép nhỏ */
+.sidebar {
+  flex-shrink: 0;
+  width: 260px; /* Giữ nguyên kích thước sidebar */
+  min-width: 240px;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+}
+
+.main-header h1 {
+  font-size: 1.8em;
+  font-weight: 600;
+  margin: 0;
+}
+
+.user-info-simple span {
+  display: block;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1em;
+}
+
+.user-info span strong {
+  color: var(--primary-color);
+}
+
+.user-info .logout-link-simple {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: var(--danger);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.user-info .logout-link-simple:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.dropdown-menu .user-info-header {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.dropdown-menu .user-info-header strong {
+  display: block;
+  color: var(--text-color);
+}
+.dropdown-menu .user-info-header span {
+  font-size: 0.8em;
+  color: var(--light-text);
+}
+
+.dropdown-menu li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+.dropdown-menu li a i {
+  width: 20px;
+  color: var(--light-text);
+}
+
+.dropdown-menu li a:hover {
+  background-color: #f8f9fa;
+  color: var(--primary-color);
+}
+
+.dropdown-menu .logout-link {
+  color: var(--danger);
+}
+
+.content-wrapper {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  flex-grow: 1;
+}
+
+/* Các phần còn lại giữ nguyên hoặc tinh chỉnh nhỏ */
+/* === PHẦN THẺ THỐNG KÊ DASHBOARD (NÂNG CẤP) === */
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 25px;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit; /* Kế thừa màu chữ mặc định */
+}
+
+.card {
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px; /* Tăng nhẹ bo góc cho mềm mại hơn */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  /* Bỏ đường viền cũ, thay bằng hiệu ứng bóng đổ tinh vi */
+  border: none; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04), 0 7px 18px rgba(0, 0, 0, 0.06);
+
+  /* Thêm hiệu ứng chuyển động mượt mà cho tất cả thay đổi */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+  /* Hiệu ứng "nâng" thẻ lên khi di chuột vào */
+  transform: translateY(-5px);
+  /* Tăng độ đậm của bóng đổ khi hover */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.07), 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.card-info h3 {
+  font-size: 2.2em; /* Làm cho số liệu nổi bật hơn */
+  font-weight: 700;
+  margin: 0 0 5px 0;
+  color: var(--text-color);
+}
+
+.card-info p {
+  margin: 0;
+  font-size: 0.95em;
+  color: var(--light-text);
+  font-weight: 500;
+}
+
+.card-icon {
+  font-size: 1.8em;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Bỏ hiệu ứng gradient và màu icon trắng */
+}
+
+/* Màu gốc cho từng loại thẻ */
+.card .card-icon {
+  background-color: #e9f2ff;
+  color: var(--primary-color);
+}
+
+.card.green .card-icon {
+  background-color: #eaf6ec;
+  color: var(--success);
+}
+
+.card.yellow .card-icon {
+  background-color: #fff8e1;
+  color: var(--warning);
+}
+
+.card.red .card-icon {
+  background-color: #fde8e9;
+  color: var(--danger);
+}
+
+.card-info h3 {
+  font-size: 2em;
+  margin: 0;
+}
+.card-info p {
+  margin: 0;
+  font-size: 1em;
+  color: var(--light-text);
+}
+
+/* Thiết lập layout và bóng đổ cho toàn bộ bảng */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse; /* Gộp đường viền */
+  font-size: 0.9em;
+  box-shadow: var(--shadow-sm);
+  border-radius: 8px; /* Bo góc cho toàn bộ bảng */
+  overflow: hidden; /* Ẩn các phần thừa khi bo góc */
+  background-color: #fff;
+}
+
+/* --- Tiêu đề bảng (THEAD) --- */
+.styled-table thead tr {
+  background-color: #f8f9fa; /* Màu nền xám nhạt */
+  color: var(--text-color);
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase; /* Viết hoa tiêu đề */
+  font-size: 0.8em;
+  letter-spacing: 0.5px; /* Tăng khoảng cách chữ */
+}
+
+/* Căn chỉnh các cột trong tiêu đề */
+.styled-table th,
+.styled-table td {
+  padding: 15px;
+  vertical-align: middle; /* Căn giữa theo chiều dọc */
+}
+
+/* Căn giữa cho các cột ID, IMAGE, FEATURED, và ACTIONS */
+.styled-table th:nth-child(1), .styled-table td:nth-child(1), /* ID */
+.styled-table th:nth-child(2), .styled-table td:nth-child(2), /* IMAGE */
+.styled-table th:nth-child(5), .styled-table td:nth-child(5), /* FEATURED */
+.styled-table th:nth-child(6), .styled-table td:nth-child(6)  /* ACTIONS */
+{
+  text-align: center;
+}
+
+/* Căn phải cho cột giá tiền */
+.styled-table th:nth-child(4),
+.styled-table td:nth-child(4) {
+  text-align: right;
+}
+
+/* --- Nội dung bảng (TBODY) --- */
+.styled-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: none;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #f1f3f5; /* Hiệu ứng đổi màu khi di chuột */
+}
+
+/* Căn chỉnh ảnh sản phẩm */
+.styled-table td img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover; /* Đảm bảo ảnh không bị méo */
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+/* Căn chỉnh các nút hành động (Edit, Delete) */
+.styled-table .actions a {
+  margin: 0 8px;
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.styled-table .actions a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+/* Tạo màu riêng cho nút Delete */
+.styled-table .actions a.delete:hover {
+  color: var(--danger);
+}
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Khoảng cách giữa icon và chữ */
+  padding: 10px 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+}
+
+.btn-add:hover {
+  background-color: #0b5ed7; /* Màu đậm hơn khi hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+/* Tiêu đề của form */
+.content-wrapper h3 {
+  font-size: 1.6em;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--primary-color);
+  display: inline-block;
+}
+
+
+
+/* Khung chứa form, tạo hiệu ứng đổ bóng tinh tế */
+.form-container {
+  background-color: #fdfdfd;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+/* Label với phong cách hiện đại hơn */
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.9em;
+  color: var(--secondary-color);
+}
+
+/* Input, select, textarea với hiệu ứng chuyển động mượt mà */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  background-color: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2); /* Hiệu ứng viền sáng khi focus */
+}
+
+/* Nút bấm với icon và hiệu ứng sáng tạo */
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px; /* Khoảng cách giữa các nút */
+  align-items: center;
+}
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--success); /* Màu xanh lá cho hành động lưu */
+  box-shadow: 0 2px 5px rgba(25, 135, 84, 0.3);
+}
+
+.btn-save:hover {
+  background-color: #157347;
+  transform: translateY(-2px);
+}
+
+.btn-cancel {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--secondary-color);
+  transition: color 0.3s ease;
+}
+
+.btn-cancel:hover {
+  color: var(--primary-color);
+}
+
+/* =========================
+   Toast Notification
+========================= */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.4s ease;
+  min-width: 280px;
+  max-width: 340px;
+  background: #fff;
+  color: #333;
+  border-left: 5px solid #4CAF50;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 10px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-success { border-color: #4CAF50; }
+.toast-error { border-color: #f44336; }
+.toast-warning { border-color: #ff9800; }
+.toast-info { border-color: #2196F3; }
+
+.toast-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}

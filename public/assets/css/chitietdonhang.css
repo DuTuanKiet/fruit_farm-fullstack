@@ -1,0 +1,264 @@
+/* =================================== */
+/* 1. Cấu trúc chung & Layout */
+/* =================================== */
+body {
+    background-color: var(--light-pink-color, #f9f9f9); 
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    color: var(--primary-color, #2c3e50);
+}
+
+.order-detail-container {
+    max-width: 900px; /* Tăng nhẹ để chứa nội dung chuyên nghiệp hơn */
+    margin: 0 auto 60px;
+    padding: 0 20px;
+}
+
+/* Header chính */
+.order-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.order-detail-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+/* ✅ Thẻ trạng thái */
+.order-status-tag {
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: capitalize;
+    flex-shrink: 0;
+}
+
+/* =================================== */
+/* 2. CARD CHUNG (Gọn & Đẹp) */
+/* =================================== */
+.order-card {
+    background-color: var(--white-color, #fff);
+    border-radius: 12px; 
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ nhàng */
+    border: 1px solid #eee;
+}
+
+.order-card h3 {
+    font-size: 1.15rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.order-card h3 i {
+    color: var(--secondary-color, #6d9f58);
+}
+
+/* =================================== */
+/* 3. BỐ CỤC LƯỚI 2 CỘT */
+/* =================================== */
+.summary-and-shipping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+.summary-card p, .shipping-card p {
+    font-size: 15px;
+    margin: 8px 0;
+    color: #555;
+}
+
+.summary-card .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dotted #f0f0f0;
+}
+
+.summary-card .summary-row:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.summary-card .summary-row span {
+    color: #555;
+    font-size: 15px;
+}
+
+.summary-card .total-row {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.total-amount-display {
+    font-weight: 700;
+    color: #e74c3c; /* Màu đỏ cho tổng tiền */
+    font-size: 18px;
+}
+
+/* =================================== */
+/* 4. BẢNG SẢN PHẨM (Clean Design) */
+/* =================================== */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.items-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    table-layout: fixed; /* Giúp kiểm soát chiều rộng cột tốt hơn */
+}
+
+.items-card th {
+    background-color: var(--medium-gray-color, #f0f0f0); /* Màu nền nhạt */
+    color: var(--primary-color);
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    border: none;
+}
+
+.items-card td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.items-card tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.product-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.product-img {
+    width: 60px; /* Ảnh nhỏ gọn hơn */
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.subtotal-cell {
+    font-weight: 600;
+}
+
+/* =================================== */
+/* 5. Trạng thái (Giống xemdonhang.css) */
+/* =================================== */
+.status.status-pending { 
+    background-color: #fff4e1; 
+    color: #e67e22; 
+}
+.status.status-completed { 
+    background-color: #e9f8ef; 
+    color: #27ae60; 
+}
+.status.status-cancelled { 
+    background-color: #fdecea; 
+    color: #c0392b; 
+}
+
+/* =================================== */
+/* 6. Nút Quay lại & Responsive */
+/* =================================== */
+.back-link {
+    text-align: right;
+    margin-top: 30px;
+    margin-bottom: 30px; 
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: var(--secondary-color, #6d9f58); 
+    color: var(--white-color, #fff);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background-color: #5d8c47; 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(109, 159, 88, 0.3);
+}
+
+@media screen and (max-width: 768px) {
+    .order-detail-container {
+        padding: 0 15px;
+    }
+    
+    .summary-and-shipping-grid {
+        grid-template-columns: 1fr; /* Chuyển về 1 cột trên mobile */
+    }
+
+    .order-card {
+        padding: 20px;
+    }
+
+    .order-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .items-card th, .items-card td {
+        padding: 10px;
+    }
+}
+
+/* =================================== */
+/* 7. Ghi chú sản phẩm */
+/* =================================== */
+.note-row td {
+    background-color: #fcfcfc;
+    border-top: none;
+    border-bottom: 1px solid #eee;
+    padding: 10px 15px;
+}
+
+.product-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 14px;
+    color: #555;
+    background: #fffdf7;
+    padding: 10px 12px;
+    border-left: 3px solid #f1c40f;
+    border-radius: 6px;
+}
+
+.product-note i {
+    color: #f1c40f;
+    margin-top: 2px;
+}
+
+.product-note strong {
+    color: #444;
+}
