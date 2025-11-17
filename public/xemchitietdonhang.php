@@ -1,29 +1,32 @@
 <?php
 session_start();
 require_once __DIR__ . '/../backend/core/config.php';
+require_once __DIR__ . '/../backend/core/db_connect.php';
 
+// Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
     echo "<p>Bạn cần đăng nhập để xem chi tiết đơn hàng.</p>";
     exit;
 }
 
-if (!isset($_GET['order_id'])) {
+// Kiểm tra order_code
+if (!isset($_GET['order_code'])) {
     echo "<p>Không tìm thấy mã đơn hàng.</p>";
     exit;
 }
 
-$order_id = (int)$_GET['order_id'];
+$order_code = $_GET['order_code'];
 $user_id = $_SESSION['user_id'];
 
-// Lấy thông tin đơn hàng
+// Lấy thông tin đơn hàng theo order_code
 $sql_order = "
-    SELECT id, order_date, total_amount, status, 
+    SELECT id, order_code, order_date, total_amount, status, 
            customer_name, customer_phone, customer_address 
     FROM orders 
-    WHERE id = ? AND user_id = ?
+    WHERE order_code = ? AND user_id = ?
 ";
 $stmt = $conn->prepare($sql_order);
-$stmt->bind_param("ii", $order_id, $user_id);
+$stmt->bind_param("si", $order_code, $user_id);
 $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 
@@ -31,6 +34,11 @@ if (!$order) {
     echo "<p>Đơn hàng không tồn tại hoặc không thuộc tài khoản của bạn.</p>";
     exit;
 }
+
+// Xác định mã đơn hàng hiển thị
+$display_code = !empty($order['order_code'])
+    ? $order['order_code']
+    : 'ORD' . str_pad($order['id'], 6, '0', STR_PAD_LEFT);
 
 // Lấy danh sách sản phẩm trong đơn
 $sql_details = "
@@ -40,7 +48,7 @@ $sql_details = "
     WHERE od.order_id = ?
 ";
 $stmt2 = $conn->prepare($sql_details);
-$stmt2->bind_param("i", $order_id);
+$stmt2->bind_param("i", $order['id']);
 $stmt2->execute();
 $result = $stmt2->get_result();
 
@@ -53,16 +61,26 @@ while ($item = $result->fetch_assoc()) {
 
 $shipping_fee = ($order['total_amount'] ?? 0) - $calculated_sub_total;
 $status_class = 'status-' . strtolower($order['status'] ?? 'pending');
+
+// Chuyển trạng thái sang tiếng Việt
+$status_vn = match ($order['status'] ?? 'pending') {
+    'pending' => 'Đang chờ xác nhận',
+    'confirmed' => 'Đã xác nhận',
+    'shipping' => 'Đang giao hàng',
+    'completed' => 'Đã hoàn thành',
+    'cancelled' => 'Đã hủy',
+    default => 'Không rõ'
+};
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Chi tiết đơn hàng #<?= $order_id ?> - Fruit Farm</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/assets/css/style.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/assets/css/chitietdonhang.css">
+<meta charset="UTF-8">
+<title>Chi tiết đơn hàng #<?= htmlspecialchars($display_code) ?> - Fruit Farm</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>public/assets/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>public/assets/css/chitietdonhang.css">
 </head>
 <body>
 <?php include __DIR__ . '/includes/header.php'; ?>
@@ -71,23 +89,13 @@ $status_class = 'status-' . strtolower($order['status'] ?? 'pending');
     <div class="breadcrumb">
         <a href="<?= BASE_URL ?>public/index.php">Trang chủ</a> &gt;
         <a href="<?= BASE_URL ?>public/xemdonhang.php">Đơn hàng của tôi</a> &gt;
-        <span>Chi tiết đơn hàng #<?= $order['id'] ?></span>
+        <span>Chi tiết đơn hàng #<?= htmlspecialchars($display_code) ?></span>
     </div>
 
     <div class="order-detail-header">
-        <h2>Chi tiết đơn hàng #<?= $order['id'] ?></h2>
-        <?php
-            $status_vn = match ($order['status'] ?? 'pending') {
-                'pending' => 'Đang chờ xác nhận',
-                'confirmed' => 'Đã xác nhận',
-                'shipping' => 'Đang giao hàng',
-                'completed' => 'Đã hoàn thành',
-                'cancelled' => 'Đã hủy',
-                default => 'Không rõ'
-            };
-            ?>
-        <div class="order-status-tag status <?= $status_class ?>">
-         <?= $status_vn ?>
+        <h2>Chi tiết đơn hàng #<?= htmlspecialchars($display_code) ?></h2>
+        <div class="order-status-tag <?= $status_class ?>">
+            <?= $status_vn ?>
         </div>
     </div>
 
@@ -95,12 +103,16 @@ $status_class = 'status-' . strtolower($order['status'] ?? 'pending');
         <div class="order-card summary-card">
             <h3><i class="fa fa-info-circle"></i> Thông tin tóm tắt</h3>
             <div class="summary-row">
-                <span>Ngày đặt hàng:</span>
-                <strong><?= date("d/m/Y H:i", strtotime($order['order_date'] ?? 'now')) ?></strong>
+                <span>Mã đơn hàng:</span>
+                <strong><?= htmlspecialchars($display_code) ?></strong>
             </div>
             <div class="summary-row">
-                <span>Phương thức thanh toán:</span>
-                <strong>COD</strong>
+                <span>Trạng thái:</span>
+                <strong><?= $status_vn ?></strong>
+            </div>
+            <div class="summary-row">
+                <span>Ngày đặt hàng:</span>
+                <strong><?= date("d/m/Y H:i", strtotime($order['order_date'] ?? 'now')) ?></strong>
             </div>
             <div class="summary-row">
                 <span>Tạm tính:</span>
@@ -112,9 +124,7 @@ $status_class = 'status-' . strtolower($order['status'] ?? 'pending');
             </div>
             <div class="summary-row total-row">
                 <span>Tổng thanh toán:</span>
-                <strong class="total-amount-display">
-                    <?= number_format($order['total_amount'] ?? 0, 0, ',', '.') ?>₫
-                </strong>
+                <strong class="total-amount-display"><?= number_format($order['total_amount'] ?? 0, 0, ',', '.') ?>₫</strong>
             </div>
         </div>
 
@@ -149,9 +159,8 @@ $status_class = 'status-' . strtolower($order['status'] ?? 'pending');
         </td>
         <td><?= number_format($item['price'] ?? 0, 0, ',', '.') ?>₫</td>
         <td><?= $item['quantity'] ?? 1 ?></td>
-        <td class="subtotal-cell"><?= number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 1), 0, ',', '.') ?>₫</td>
+        <td><?= number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 1), 0, ',', '.') ?>₫</td>
     </tr>
-
     <?php if (!empty($item['note'])): ?>
     <tr class="note-row">
         <td></td>
@@ -165,15 +174,6 @@ $status_class = 'status-' . strtolower($order['status'] ?? 'pending');
     <?php endif; ?>
     <?php endforeach; ?>
 </tbody>
-<!-- Hàng tổng tiền -->
-<tr class="total-row">
-    <td colspan="4" style="text-align:right; font-weight:600; font-size:1rem;">
-        Tổng tiền đơn hàng:
-    </td>
-    <td colspan="2" style="font-weight:700; color:#2c3333; font-size:1.1rem;">
-        <?= number_format($calculated_sub_total, 0, ',', '.') ?>₫
-    </td>
-</tr>
             </table>
         </div>
     </div>
@@ -182,8 +182,8 @@ $status_class = 'status-' . strtolower($order['status'] ?? 'pending');
         <a href="xemdonhang.php" class="btn-back"><i class="fa fa-arrow-left"></i> Quay lại danh sách đơn hàng</a>
     </div>
 </main>
-<div class="toast-container" id="toast-container"></div>
 
+<div class="toast-container" id="toast-container"></div>
 <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>

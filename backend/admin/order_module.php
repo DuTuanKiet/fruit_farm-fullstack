@@ -1,20 +1,15 @@
 <?php
-// Đường dẫn: /backend/admin/order_module.php
-// File này chứa tất cả các hàm liên quan đến việc truy vấn dữ liệu đơn hàng.
 
-// Yêu cầu các file cấu hình và kết nối DB
-// Giả định /backend/admin/order_module.php -> lùi 2 cấp để vào /backend/core/
 require_once __DIR__ . '/../core/config.php';
-require_once __DIR__ . '/../core/db_connect.php'; 
+require_once __DIR__ . '/../core/db_connect.php';
+
 /**
  * Lấy các chỉ số thống kê tổng quan về đơn hàng.
  *
  * @param mysqli|null $conn Đối tượng kết nối MySQLi.
- * @return array Mảng chứa tổng số đơn hàng, đơn pending, completed, và tổng doanh thu (chỉ tính đơn completed).
+ * @return array Mảng chứa tổng số đơn hàng, đơn theo trạng thái, và tổng doanh thu.
  */
-// Lấy thống kê toàn bộ đơn hàng, phân theo trạng thái
 function get_order_stats($conn) {
-    // Khởi tạo mặc định
     $stats = [
         'all_orders'       => 0,
         'pending_orders'   => 0,
@@ -25,7 +20,7 @@ function get_order_stats($conn) {
         'total_revenue'    => 0
     ];
 
-    // 1. Tổng đơn hàng
+    // 1️⃣ Tổng đơn hàng
     $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM orders");
     if ($stmt) {
         $stmt->execute();
@@ -35,7 +30,7 @@ function get_order_stats($conn) {
         $stmt->close();
     }
 
-    // 2. Tổng đơn theo từng trạng thái
+    // 2️⃣ Tổng đơn theo từng trạng thái
     $status_map = [
         'pending'   => 'pending_orders',
         'confirmed' => 'confirmed_orders',
@@ -56,7 +51,7 @@ function get_order_stats($conn) {
         }
     }
 
-    // 3. Tổng doanh thu
+    // 3️⃣ Tổng doanh thu: **chỉ tính dựa trên status = 'completed'**, không lọc payment_status
     $stmt = $conn->prepare("SELECT SUM(total_amount) AS total FROM orders WHERE status = 'completed'");
     if ($stmt) {
         $stmt->execute();
@@ -70,19 +65,17 @@ function get_order_stats($conn) {
 }
 
 /**
- * Lấy danh sách đơn hàng đã được lọc và tìm kiếm.
+ * Lấy danh sách đơn hàng đã lọc và tìm kiếm.
  *
- * @param mysqli|null $conn Đối tượng kết nối MySQLi.
- * @param string $status_filter Trạng thái đơn hàng cần lọc ('all', 'pending', 'processing', etc.).
- * @param string $search_term Chuỗi tìm kiếm (Mã ĐH hoặc Tên KH).
- * @return array Danh sách đơn hàng.
+ * @param mysqli|null $conn
+ * @param string $status_filter Trạng thái ('all', 'pending', 'confirmed', ...).
+ * @param string $search_term Chuỗi tìm kiếm (id, customer_name, order_code)
+ * @return array
  */
 function get_filtered_orders($conn, $status_filter, $search_term) {
-    if ($conn === null || $conn === false) {
-        return [];
-    }
+    if (!$conn) return [];
 
-    $sql = "SELECT id, customer_name, total_amount, status, order_date FROM orders";
+    $sql = "SELECT id, order_code, customer_name, total_amount, status, order_date FROM orders";
     $where_clauses = [];
 
     // Lọc theo trạng thái
@@ -90,71 +83,66 @@ function get_filtered_orders($conn, $status_filter, $search_term) {
         $where_clauses[] = "status = ?";
     }
 
-    // Tìm kiếm (theo id và customer_name, ép id thành chuỗi để tìm kiếm)
+    // Tìm kiếm theo ID, customer_name hoặc order_code
     if (!empty($search_term)) {
-        // Dùng `CONCAT` hoặc `CAST` để tìm kiếm trên ID cũng như Tên
-        $where_clauses[] = "(CAST(id AS CHAR) LIKE ? OR customer_name LIKE ?)";
+        $where_clauses[] = "(CAST(id AS CHAR) LIKE ? OR customer_name LIKE ? OR order_code LIKE ?)";
     }
 
     if (!empty($where_clauses)) {
         $sql .= " WHERE " . implode(" AND ", $where_clauses);
     }
 
-    // Sắp xếp theo ngày đặt giảm dần
     $sql .= " ORDER BY order_date DESC";
 
     $stmt = mysqli_prepare($conn, $sql);
-
-    if ($stmt) {
-        $types = '';
-        $params = [];
-        $search_term_db = "%" . $search_term . "%"; // Chỉ cần tính toán một lần
-
-        // 1. Thêm tham số cho Status Filter
-        if ($status_filter !== 'all') {
-            $types .= 's';
-            $params[] = $status_filter;
-        }
-
-        // 2. Thêm tham số cho Search Term
-        if (!empty($search_term)) {
-            $types .= 'ss'; // 2 tham số: cho ID và cho customer_name
-            $params[] = $search_term_db;
-            $params[] = $search_term_db;
-        }
-
-        if (!empty($params)) {
-            // Chuẩn bị mảng tham chiếu cho mysqli_stmt_bind_param
-            $bind_params = array_merge([$types], $params);
-            $refs = [];
-            foreach ($bind_params as $key => $value) {
-                $refs[$key] = &$bind_params[$key];
-            }
-            call_user_func_array('mysqli_stmt_bind_param', array_merge([$stmt], $refs));
-        }
-
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        $orders = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        mysqli_stmt_close($stmt);
-        return $orders;
-
-    } else {
+    if (!$stmt) {
         error_log("SQL Error (get_filtered_orders): " . mysqli_error($conn));
         return [];
     }
+
+    $types = '';
+    $params = [];
+    $search_term_db = "%" . $search_term . "%";
+
+    if ($status_filter !== 'all') {
+        $types .= 's';
+        $params[] = $status_filter;
+    }
+
+    if (!empty($search_term)) {
+        $types .= 'sss';
+        $params[] = $search_term_db;
+        $params[] = $search_term_db;
+        $params[] = $search_term_db;
+    }
+
+    if (!empty($params)) {
+        $bind_params = array_merge([$types], $params);
+        $refs = [];
+        foreach ($bind_params as $key => $value) {
+            $refs[$key] = &$bind_params[$key];
+        }
+        call_user_func_array('mysqli_stmt_bind_param', array_merge([$stmt], $refs));
+    }
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $orders = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    mysqli_stmt_close($stmt);
+
+    return $orders;
 }
 
 /**
- * Hàm hỗ trợ chuyển trạng thái thành CSS class.
+ * Chuyển trạng thái đơn hàng thành CSS class cho giao diện.
  *
- * @param string $status Tên trạng thái.
- * @return string CSS class.
+ * @param string $status
+ * @return string
  */
 function get_status_badge_class($status) {
     return match ($status) {
         'pending' => 'status-pending',
-        'processing' => 'status-processing',
+        'confirmed' => 'status-confirmed', 
         'shipping' => 'status-shipping',
         'completed' => 'status-completed',
         'cancelled' => 'status-cancelled',

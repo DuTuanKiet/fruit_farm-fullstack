@@ -4,6 +4,11 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once(__DIR__ . '/../core/config.php');
 require_once(__DIR__ . '/../core/db_connect.php');
 
+function generateOrderCode($userId) {
+    return 'DH-' . strtoupper(substr(md5(uniqid($userId, true)), 0, 10));
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die('Phương thức không hợp lệ');
 }
@@ -99,19 +104,24 @@ try {
     }
 
     // Tạo đơn hàng
-    $order_code = 'DH' . time() . rand(100, 999);
+    $order_code = generateOrderCode($userId);
     $status = 'pending';
     $payment_method = 'cod';
 
     $stmt_order = $conn->prepare("
-    INSERT INTO orders (user_id, customer_name, customer_phone, customer_address, total_amount, status)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO orders (user_id, order_code, customer_name, customer_phone, customer_address, total_amount, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt_order->bind_param(
-    "isssds",
-    $userId, $fullname, $phone, $address,
-    $final_total, $status
-    );  
+    "issssds",
+    $userId,
+    $order_code,
+    $fullname,
+    $phone,
+    $address,
+    $final_total,
+    $status
+    );
     $stmt_order->execute();
     $order_id = $conn->insert_id;
     $stmt_order->close();

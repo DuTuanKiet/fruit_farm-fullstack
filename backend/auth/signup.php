@@ -3,67 +3,91 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+session_start();
+
 require_once(__DIR__ . '/../core/config.php');
-header('Content-Type: application/json');
+require_once(__DIR__ . '/../core/db_connect.php');
 
-// Đọc dữ liệu JSON từ request
-$data = json_decode(file_get_contents("php://input"));
+header('Content-Type: application/json; charset=utf-8');
 
-// Kiểm tra dữ liệu JSON hợp lệ
-if ($data === null) {
-    echo json_encode(['success' => false, 'message' => 'Invalid JSON data received.']);
+// Kiểm tra kết nối DB
+if ($conn->connect_error) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database connection failed: ' . $conn->connect_error
+    ]);
     exit;
 }
+
+// Lấy dữ liệu JSON từ AJAX hoặc fallback $_POST
+$raw_input = file_get_contents("php://input");
+$data = json_decode($raw_input);
 
 $username = trim($data->username ?? '');
-$email = trim($data->email ?? null);
+$email = trim($data->email ?? '');
 $password = trim($data->password ?? '');
+$confirm_password = trim($data->confirm_password ?? '');
 
-// Kiểm tra input
-if (empty($username) || empty($password)) {
-    echo json_encode(['success' => false, 'message' => 'Username and password are required.']);
+// Debug
+file_put_contents(__DIR__.'/debug_signup.txt', print_r($data, true)."\n", FILE_APPEND);
+
+// Kiểm tra trống
+if (!$username || !$email || !$password || !$confirm_password) {
+    echo json_encode(['success'=>false,'message'=>'Vui lòng điền đầy đủ các trường bắt buộc.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// ✅ Kiểm tra username đã tồn tại chưa
-$stmt_check = $conn->prepare("SELECT id FROM users WHERE username = ?");
-$stmt_check->bind_param("s", $username);
+if ($password !== $confirm_password) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Xác nhận mật khẩu không khớp.'
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// ===== Kiểm tra username/email tồn tại =====
+$stmt_check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+$stmt_check->bind_param("ss", $username, $email);
 $stmt_check->execute();
 $stmt_check->store_result();
 
 if ($stmt_check->num_rows > 0) {
-    echo json_encode(['success' => false, 'message' => 'Username already exists.']);
     $stmt_check->close();
-    $conn->close();
+    echo json_encode([
+        'success' => false,
+        'message' => 'Tên đăng nhập hoặc email đã tồn tại.'
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 $stmt_check->close();
 
-// ✅ Mã hóa mật khẩu an toàn
+// ===== Thêm user mới =====
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+$role = 'user';
+$status = 'active';
+$is_active = 1;
 
-// ✅ Thêm người dùng mới
-$stmt_insert = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-$stmt_insert->bind_param("sss", $username, $email, $hashed_password);
+$stmt_insert = $conn->prepare("
+    INSERT INTO users (username, email, password, role, status, is_active)
+    VALUES (?, ?, ?, ?, ?, ?)
+");
+$stmt_insert->bind_param("sssssi", $username, $email, $hashed_password, $role, $status, $is_active);
 
 if ($stmt_insert->execute()) {
-    session_start();
-    $user_id = $conn->insert_id;
-
-    $_SESSION['loggedin'] = true;
-    $_SESSION['user_id'] = $user_id;
-    $_SESSION['username'] = $username;
-    $_SESSION['role'] = 'user'; // vai trò mặc định
-
+    $stmt_insert->close();
+    $conn->close();
     echo json_encode([
         'success' => true,
-        'message' => 'Registration successful! You are now logged in.',
-        'redirect' => BASE_URL . 'index.php' // ✅ redirect động theo cấu hình
-    ]);
+        'message' => 'Đăng ký tài khoản thành công! Vui lòng đăng nhập.'
+    ], JSON_UNESCAPED_UNICODE);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Database Error: ' . $stmt_insert->error]);
+    $error = $stmt_insert->error;  
+    $stmt_insert->close();
+    $conn->close();
+    echo json_encode([
+        'success' => false,
+        'message' => 'Không đăng ký được: ' . $error
+    ], JSON_UNESCAPED_UNICODE);
 }
 
-$stmt_insert->close();
-$conn->close();
 ?>

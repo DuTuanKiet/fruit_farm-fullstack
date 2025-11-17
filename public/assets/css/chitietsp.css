@@ -405,6 +405,23 @@
   color: var(--primary-color);
 }
 
+/* Sản phẩm hết hàng */
+        .out-of-stock {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .btn-disabled {
+            background: #ccc !important;
+            color: #666 !important;
+            border: 1px solid #999 !important;
+            cursor: not-allowed !important;
+        }
+        .stock-notice {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
 /* ============ Responsive ============ */
 @media (max-width: 992px) {
   .product-hero {

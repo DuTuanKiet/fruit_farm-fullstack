@@ -10,7 +10,7 @@ const cartContainer = document.querySelector(".cart-container");
 const cartBody = document.getElementById("cart-body");
 const grandTotalEl = document.getElementById("grand-total");
 const cartCountEl = document.querySelector(".cart .cart-count");
-const registerForm = document.getElementById("registerForm");
+const registerForm = document.getElementById("signupForm");
 const loginForm = document.getElementById("loginForm");
 const backToTopBtn = document.getElementById("backToTop");
 const userHeader = document.querySelector(".user-header");
@@ -1411,47 +1411,79 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ==== LOGIN/REGISTER AJAX ====
-  if (registerForm) {
-    registerForm.addEventListener("submit", async e => {
-      e.preventDefault();
+if (registerForm) {
+  registerForm.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const username = registerForm.username.value.trim();
+    const email = registerForm.email.value.trim();
+    const password = registerForm.password.value;
+    const confirm_password = registerForm.confirm_password.value;
+
+    if (!username || !email || !password || !confirm_password) {
+      showToast("Vui lòng điền đầy đủ các trường.", "error");
+      return;
+    }
+
+    try {
       const res = await fetch("/fruitfarm/backend/auth/signup.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: registerForm.username.value,
-          email: registerForm.email.value,
-          password: registerForm.password.value,
-        }),
+        body: JSON.stringify({ username, email, password, confirm_password })
       });
-      const data = await res.json();
-      showToast(data.message, data.success ? "success" : "error");
-      if (data.success) formPopup?.classList.remove("show-signup");
-    });
-  }
 
-  if (loginForm) {
-    loginForm.addEventListener("submit", async e => {
-      e.preventDefault();
-      const dataObj = Object.fromEntries(new FormData(loginForm).entries());
-      const res = await fetch("/fruitfarm/backend/auth/login.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataObj),
-      });
       const data = await res.json();
+      console.log("PHP response:", data); // debug
+
       showToast(data.message, data.success ? "success" : "error");
-      
+
       if (data.success) {
-        if (data.redirect) { 
-          window.location.href = data.redirect; 
-        } else {
-          await updateHeaderUser(); 
-          loadProducts();
-          document.body.classList.remove("show-popup");
-        }
+        setTimeout(() => {
+          document.querySelector('.form-box.signup').style.display = 'none';
+          const loginBox = document.querySelector('.form-box.login');
+          loginBox.style.display = 'flex';
+          formPopup.classList.remove('show-signup');
+          loginBox.querySelector('input[name="username"]').focus();
+        }, 400);
       }
+
+    } catch (err) {
+      console.error(err);
+      showToast("Có lỗi xảy ra. Vui lòng thử lại.", "error");
+    }
+  });
+}
+
+if (loginForm) {
+    loginForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        const dataObj = Object.fromEntries(new FormData(loginForm).entries());
+        const res = await fetch("/fruitfarm/backend/auth/login.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataObj),
+        });
+
+        const data = await res.json();
+
+        // Hiển thị toast chỉ 1 lần
+        showToast(data.message, data.success ? "success" : "error");
+
+        if (data.success) {
+            if (data.redirect) {
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 800);
+            } else {
+                setTimeout(async () => {
+                    await updateHeaderUser();
+                    loadProducts();
+                    document.body.classList.remove("show-popup");
+                }, 500);
+            }
+        }
     });
-  }
+}
 
   document.addEventListener("click", async (e) => {
     const target = e.target.closest('button');

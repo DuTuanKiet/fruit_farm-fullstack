@@ -61,36 +61,44 @@ if (isset($_GET['code'])) {
         }
 
             // Kiểm tra email trong CSDL
-            $stmt = $conn->prepare("SELECT id, username FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
+$stmt = $conn->prepare("SELECT id, username, status FROM users WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$result = $stmt->get_result();
 
-            if ($result->num_rows > 0) {
-            // user đã tồn tại → cập nhật phone và address nếu có
-            $user = $result->fetch_assoc();
-            $_SESSION['loggedin'] = true;
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['phone'] = $phone;     
-            $_SESSION['address'] = $address;
+if ($result->num_rows > 0) {
+    // user đã tồn tại → check trạng thái
+    $user = $result->fetch_assoc();
 
-            $stmt_update = $conn->prepare("UPDATE users SET phone = ?, address = ? WHERE id = ?");
-            $stmt_update->bind_param("ssi", $phone, $address, $user['id']);
-            $stmt_update->execute();
-            $stmt_update->close();
-            } else {
-            // user mới → thêm luôn phone và address
-            $password_hash = password_hash(bin2hex(random_bytes(8)), PASSWORD_DEFAULT);
-            $stmt_insert = $conn->prepare("INSERT INTO users (username, email, password, phone, address) VALUES (?, ?, ?, ?, ?)");
-            $stmt_insert->bind_param("sssss", $name, $email, $password_hash, $phone, $address);
-            $stmt_insert->execute();
+    // 🚫 NGĂN GOOGLE LOGIN nếu user bị vô hiệu hóa
+    if (strtolower(trim($user['status'])) === 'disabled') {
+        echo "<script>alert('Tài khoản Google của bạn đã bị vô hiệu hóa. Không thể đăng nhập.'); window.location.href='/fruitfarm/public/index.php';</script>";
+        exit;
+    }
 
-            $_SESSION['loggedin'] = true;
-            $_SESSION['user_id'] = $stmt_insert->insert_id;
-            $_SESSION['username'] = $name;
-            }
+    // user đã tồn tại → cập nhật phone và address nếu có
+    $_SESSION['loggedin'] = true;
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['username'] = $user['username'];
+    $_SESSION['phone'] = $phone;     
+    $_SESSION['address'] = $address;
 
+    $stmt_update = $conn->prepare("UPDATE users SET phone = ?, address = ? WHERE id = ?");
+    $stmt_update->bind_param("ssi", $phone, $address, $user['id']);
+    $stmt_update->execute();
+    $stmt_update->close();
+
+} else {
+    // user mới → thêm luôn phone và address
+    $password_hash = password_hash(bin2hex(random_bytes(8)), PASSWORD_DEFAULT);
+    $stmt_insert = $conn->prepare("INSERT INTO users (username, email, password, phone, address, status) VALUES (?, ?, ?, ?, ?, 'active')");
+    $stmt_insert->bind_param("sssss", $name, $email, $password_hash, $phone, $address);
+    $stmt_insert->execute();
+
+    $_SESSION['loggedin'] = true;
+    $_SESSION['user_id'] = $stmt_insert->insert_id;
+    $_SESSION['username'] = $name;
+}
 
             // Thành công → về trang chủ
             header('Location: /fruitfarm/public/index.php');

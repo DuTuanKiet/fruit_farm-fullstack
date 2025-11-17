@@ -4,17 +4,31 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
+
 require_once(__DIR__ . '/../core/config.php');
+require_once(__DIR__ . '/../core/db_connect.php');
+
+// Kiểm tra kết nối DB
+if ($conn->connect_error) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database connection failed: ' . $conn->connect_error
+    ]);
+    exit;
+}
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Lấy dữ liệu JSON từ frontend
-$data = json_decode(file_get_contents("php://input"));
+// Đọc JSON 1 lần
+$raw_input = file_get_contents("php://input");
+file_put_contents(__DIR__ . "/debug.txt", $raw_input . "\n", FILE_APPEND);
+
+$data = json_decode($raw_input);
 $username = trim($data->username ?? '');
 $password = trim($data->password ?? '');
 $redirect_url = $data->redirect_url ?? (BASE_URL . 'index.php');
 
-// Kiểm tra đầu vào
+// Kiểm tra input
 if ($username === '' || $password === '') {
     echo json_encode([
         'success' => false,
@@ -23,19 +37,19 @@ if ($username === '' || $password === '') {
     exit;
 }
 
-// 🔎 Truy vấn tìm user bằng username hoặc email
+// Truy vấn user bằng username hoặc email
 $stmt = $conn->prepare("SELECT id, username, password, role, status FROM users WHERE username = ? OR email = ?");
 $stmt->bind_param("ss", $username, $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// ✅ Kiểm tra user tồn tại và mật khẩu đúng
+// Kiểm tra user tồn tại và mật khẩu đúng
 if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
 
     if (password_verify($password, $user['password'])) {
 
-        // --- KIỂM TRA TRẠNG THÁI TÀI KHOẢN ---
+        // Kiểm tra trạng thái tài khoản
         if ($user['status'] === 'disabled') {
             echo json_encode([
                 'success' => false,
@@ -44,13 +58,13 @@ if ($result->num_rows === 1) {
             exit;
         }
 
-        // --- TẠO SESSION CHO TÀI KHOẢN HỢP LỆ ---
+        // Tạo session cho tài khoản hợp lệ
         $_SESSION['loggedin'] = true;
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role'];
 
-        // --- TRẢ VỀ JSON ĐỂ CHUYỂN HƯỚNG FRONTEND ---
+        // Trả JSON để frontend chuyển hướng
         $redirect = ($user['role'] === 'admin') 
             ? BASE_URL . 'public/fe/admin_dashboard.php' 
             : $redirect_url;

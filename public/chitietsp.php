@@ -49,24 +49,6 @@ $relatedProducts = $stmt_related->get_result()->fetch_all(MYSQLI_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
     <link rel="stylesheet" href="<?= BASE_URL ?>public/assets/css/style.css" />
     <link rel="stylesheet" href="<?= BASE_URL ?>public/assets/css/chitietsp.css" /> 
-    <style>
-        /* Sản phẩm hết hàng */
-        .out-of-stock {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        .btn-disabled {
-            background: #ccc !important;
-            color: #666 !important;
-            border: 1px solid #999 !important;
-            cursor: not-allowed !important;
-        }
-        .stock-notice {
-            color: red;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 <body>
 

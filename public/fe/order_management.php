@@ -1,44 +1,52 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() === PHP_SESSION_NONE) session_start();
+
 require_once __DIR__ . '/../../backend/admin/admin_auth.php';
 require_once __DIR__ . '/../../backend/core/db_connect.php'; 
 require_once __DIR__ . '/../../backend/admin/order_module.php';
 
+/**
+ * Sinh order_code tự động: U{user_id}-YYYYMMDD-XXX
+ */
+function generateOrderCode($conn, $user_id) {
+    $date = date('Ymd');
+    $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM orders WHERE DATE(order_date) = CURDATE()");
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res->fetch_assoc();
+    $seq = (int)$row['cnt'] + 1;
+    $stmt->close();
+    return sprintf("U%d-%s-%03d", $user_id, $date, $seq);
+}
+
 // Lấy thống kê đơn hàng
 $total_stats = get_order_stats($conn);
-
-// Đảm bảo tất cả key tồn tại, tránh Undefined array key
 $stats_keys = ['all_orders','pending_orders','confirmed_orders','shipping_orders','completed_orders','cancelled_orders','total_revenue'];
 foreach ($stats_keys as $key) {
-    if (!isset($total_stats[$key])) {
-        $total_stats[$key] = 0;
-    }
+    if (!isset($total_stats[$key])) $total_stats[$key] = 0;
 }
 
 // Lấy filter và search
 $status_filter = $_GET['status'] ?? 'all';
 $search_term   = trim($_GET['search'] ?? '');
-
 $limit  = 10;
 $page   = max(1, intval($_GET['page_num'] ?? 1));
 $offset = ($page - 1) * $limit;
 
-// Build WHERE clause
+// Build WHERE clause (search theo customer_name + order_code)
 $where = [];
 $params = [];
 $types = "";
-
 if ($status_filter !== 'all') {
     $where[] = "status = ?";
     $params[] = $status_filter;
     $types .= "s";
 }
 if (!empty($search_term)) {
-    $where[] = "customer_name LIKE ?";
+    $where[] = "(customer_name LIKE ? OR order_code LIKE ?)";
     $params[] = "%$search_term%";
-    $types .= "s";
+    $params[] = "%$search_term%";
+    $types .= "ss";
 }
 $where_sql = $where ? "WHERE " . implode(" AND ", $where) : "";
 
@@ -81,75 +89,54 @@ $stmt->close();
 <div class="admin-content-wrapper">
     <h1 class="page-title">Quản Lý Đơn Hàng</h1>
 
+    <!-- Thống kê -->
     <div class="stats-grid">
-        <div class="stat-card blue-bg">
-            <div class="stat-icon-wrapper white-bg"><i class="fa-solid fa-box-archive"></i></div>
+        <?php 
+        $stats_labels = [
+            'all_orders'=>'Tổng số Đơn Hàng','pending_orders'=>'Đơn chờ xác nhận',
+            'confirmed_orders'=>'Đã xác nhận','shipping_orders'=>'Đang giao',
+            'completed_orders'=>'Đã hoàn thành','cancelled_orders'=>'Đã hủy',
+            'total_revenue'=>'Tổng Doanh Thu'
+        ];
+        $stats_colors = [
+            'all_orders'=>'blue-bg','pending_orders'=>'orange-bg','confirmed_orders'=>'purple-bg',
+            'shipping_orders'=>'teal-bg','completed_orders'=>'green-bg','cancelled_orders'=>'gray-bg','total_revenue'=>'red-bg'
+        ];
+        $stats_icons = [
+            'all_orders'=>'fa-box-archive','pending_orders'=>'fa-hourglass-start','confirmed_orders'=>'fa-check-double',
+            'shipping_orders'=>'fa-truck','completed_orders'=>'fa-circle-check','cancelled_orders'=>'fa-xmark','total_revenue'=>'fa-sack-dollar'
+        ];
+        foreach($stats_keys as $key): ?>
+        <div class="stat-card <?= $stats_colors[$key] ?>">
+            <div class="stat-icon-wrapper white-bg"><i class="fa-solid <?= $stats_icons[$key] ?>"></i></div>
             <div class="stat-info">
-                <p>Tổng số Đơn Hàng</p>
-                <span class="stat-value"><?= number_format($total_stats['all_orders']) ?></span>
+                <p><?= $stats_labels[$key] ?></p>
+                <span class="stat-value">
+                    <?= $key === 'total_revenue' ? number_format($total_stats[$key]).'₫' : number_format($total_stats[$key]) ?>
+                </span>
             </div>
         </div>
-        <div class="stat-card orange-bg">
-            <div class="stat-icon-wrapper white-bg"><i class="fa-solid fa-hourglass-start"></i></div>
-            <div class="stat-info">
-                <p>Đơn chờ xác nhận</p>
-                <span class="stat-value"><?= number_format($total_stats['pending_orders']) ?></span>
-            </div>
-        </div>
-        <div class="stat-card purple-bg">
-        <div class="stat-icon-wrapper white-bg"><i class="fa-solid fa-check-double"></i></div>
-        <div class="stat-info">
-                <p>Đã xác nhận</p>
-                <span class="stat-value"><?= number_format($total_stats['confirmed_orders']) ?></span>
-            </div>
-        </div>
-        <div class="stat-card teal-bg">
-        <div class="stat-icon-wrapper white-bg"><i class="fa-solid fa-truck"></i></div>
-        <div class="stat-info">
-                <p>Đang giao</p>
-                <span class="stat-value"><?= number_format($total_stats['shipping_orders']) ?></span>
-            </div>
-        </div>
-        <div class="stat-card green-bg">
-            <div class="stat-icon-wrapper white-bg"><i class="fa-solid fa-circle-check"></i></div>
-            <div class="stat-info">
-                <p>Đã hoàn thành</p>
-                <span class="stat-value"><?= number_format($total_stats['completed_orders']) ?></span>
-            </div>
-        </div>
-        <div class="stat-card gray-bg">
-        <div class="stat-icon-wrapper white-bg"><i class="fa-solid fa-xmark"></i></div>
-        <div class="stat-info">
-                <p>Đã hủy</p>
-                <span class="stat-value"><?= number_format($total_stats['cancelled_orders']) ?></span>
-            </div>
-        </div>
-        <div class="stat-card red-bg">
-            <div class="stat-icon-wrapper white-bg"><i class="fa-solid fa-sack-dollar"></i></div>
-            <div class="stat-info">
-                <p>Tổng Doanh Thu</p>
-                <span class="stat-value"><?= number_format($total_stats['total_revenue']) ?>₫</span>
-            </div>
-        </div>
+        <?php endforeach; ?>
     </div>
 
+    <!-- Filter + Search -->
     <div class="shadow-card filter-search-container">
         <form action="admin_dashboard.php" method="GET" class="filter-form">
             <input type="hidden" name="page" value="orders">
             <div class="status-filter-group">
                 <label for="status-filter">Trạng thái:</label>
                 <select name="status" id="status-filter" class="form-control" onchange="this.form.submit()">
-                    <option value="all" <?= ($status_filter === 'all' ? 'selected' : '') ?>>Tất cả</option>
-                    <option value="pending" <?= ($status_filter === 'pending' ? 'selected' : '') ?>>Đang chờ xác nhận</option>
-                    <option value="confirmed" <?= ($status_filter === 'confirmed' ? 'selected' : '') ?>>Đã xác nhận</option>
-                    <option value="shipping" <?= ($status_filter === 'shipping' ? 'selected' : '') ?>>Đang giao hàng</option>
-                    <option value="completed" <?= ($status_filter === 'completed' ? 'selected' : '') ?>>Đã hoàn thành</option>
-                    <option value="cancelled" <?= ($status_filter === 'cancelled' ? 'selected' : '') ?>>Đã hủy</option>
+                    <?php 
+                    $status_options = ['all'=>'Tất cả','pending'=>'Đang chờ xác nhận','confirmed'=>'Đã xác nhận','shipping'=>'Đang giao hàng','completed'=>'Đã hoàn thành','cancelled'=>'Đã hủy'];
+                    foreach($status_options as $k=>$v): ?>
+                        <option value="<?= $k ?>" <?= ($status_filter === $k ? 'selected' : '') ?>><?= $v ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
         </form>
     </div>
 
+    <!-- Bảng đơn hàng -->
     <div class="table-container">
         <h2>Danh Sách Đơn Hàng</h2>
         <?php if (empty($paged_orders)) : ?>
@@ -158,18 +145,18 @@ $stmt->close();
         <table class="table order-table">
             <thead>
                 <tr>
-                    <th>Mã</th>
+                    <th>Mã Đơn</th>
                     <th>Khách Hàng</th>
                     <th>Tổng Tiền</th>
                     <th>Ngày Đặt</th>
                     <th>Trạng Thái</th>
-                    <th>Hành động</th>
+                    <th>Hành Động</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($paged_orders as $order): ?>
                 <tr>
-                    <td>#<?= $order['id'] ?></td>
+                    <td><?= htmlspecialchars($order['order_code'] ?: '#'.$order['id']) ?></td>
                     <td><?= htmlspecialchars($order['customer_name']) ?></td>
                     <td><?= number_format($order['total_amount']) ?>₫</td>
                     <td><?= date('d/m/Y', strtotime($order['order_date'])) ?></td>
@@ -189,16 +176,9 @@ $stmt->close();
                         <a href="chitietdonhang.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-info">
                             <i class="fas fa-eye"></i> Xem
                         </a>
-
                         <?php
-                        $statuses = [
-                            'pending' => 'Đang chờ xác nhận',
-                            'confirmed' => 'Đã xác nhận',
-                            'shipping' => 'Đang giao hàng',
-                            'completed' => 'Đã hoàn thành',
-                            'cancelled' => 'Đã hủy'
-                        ];
-                        $is_final = in_array($order['status'], ['completed', 'cancelled']);
+                        $statuses = ['pending'=>'Đang chờ xác nhận','confirmed'=>'Đã xác nhận','shipping'=>'Đang giao hàng','completed'=>'Đã hoàn thành','cancelled'=>'Đã hủy'];
+                        $is_final = in_array($order['status'], ['completed','cancelled']);
                         ?>
                         <select class="order-status-select form-control" data-order-id="<?= $order['id'] ?>" <?= $is_final ? 'disabled' : '' ?>>
                             <?php foreach ($statuses as $key => $label): ?>
@@ -211,10 +191,10 @@ $stmt->close();
             </tbody>
         </table>
 
-        <!-- PHÂN TRANG -->
+        <!-- Phân trang -->
         <div class="pagination-wrap">
             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <a href="?page=orders&status=<?= $status_filter ?>&page_num=<?= $i ?>" 
+                <a href="?page=orders&status=<?= $status_filter ?>&search=<?= urlencode($search_term) ?>&page_num=<?= $i ?>" 
                    class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
             <?php endfor; ?>
         </div>
@@ -225,7 +205,6 @@ $stmt->close();
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const selects = document.querySelectorAll('.order-status-select');
-
     selects.forEach(select => {
         select.addEventListener('change', async function() {
             const orderId = this.dataset.orderId;
@@ -235,32 +214,74 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const response = await fetch('<?= BASE_URL ?>backend/admin/update_order_status.php', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {'Content-Type':'application/json'},
                     body: JSON.stringify({order_id: orderId, new_status: newStatus})
                 });
                 const data = await response.json();
-
                 if (data.success) {
-                    showToast(data.message, 'success');
+                    // Cập nhật status-label
                     statusLabel.textContent = this.options[this.selectedIndex].text;
                     statusLabel.className = `status-label status-${newStatus}`;
                     if (['completed','cancelled'].includes(newStatus)) this.disabled = true;
-                } else {
-                    showToast('Cập nhật thất bại.', 'error');
-                }
-            } catch (error) {
+
+                    // Hiển thị toast dựa trên màu trạng thái
+                    showStatusToast(orderId, `Đơn hàng đã cập nhật trạng thái: ${statusLabel.textContent}`);
+                } else showToast('Cập nhật thất bại.', 'error');
+            } catch {
                 showToast('Lỗi kết nối hoặc máy chủ.', 'error');
             }
         });
     });
 
-    function showToast(message, type) {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 4000);
-    }
+function showStatusToast(orderId, message) {
+    const statusLabel = document.querySelector(`.order-status-select[data-order-id="${orderId}"]`)
+                             .closest('tr')
+                             .querySelector('.status-label');
+    if (!statusLabel) return;
+
+    // Lấy statusKey chính xác, bỏ 'status-label'
+    const statusKey = Array.from(statusLabel.classList)
+                           .find(c => c.startsWith('status-') && c !== 'status-label')
+                           ?.replace('status-', '')
+                           .toLowerCase() || 'unknown';
+
+    // Map màu nền + chữ theo CSS hiện có
+    const statusStyles = {
+        pending:   { bg: '#fff3cd', color: '#856404' },
+        confirmed: { bg: '#e7f1ff', color: '#0d6efd' },
+        processing:{ bg: '#e7f1ff', color: '#0d6efd' },
+        shipping:  { bg: '#ede7f6', color: '#6f42c1' },
+        completed: { bg: '#e8f9ed', color: 'var(--success)' },
+        cancelled: { bg: '#fdeaea', color: 'var(--danger)' },
+        unknown:   { bg: '#f0f0f0', color: '#000' }
+    };
+
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+
+    // Áp dụng màu đồng bộ
+    const style = statusStyles[statusKey] || statusStyles.unknown;
+    toast.style.backgroundColor = style.bg;
+    toast.style.color = style.color;
+
+    // Animation mượt
+    toast.style.opacity = 0;
+    toast.style.transform = 'translateY(-20px)';
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.style.transition = 'all 0.3s ease';
+        toast.style.opacity = 1;
+        toast.style.transform = 'translateY(0)';
+    });
+
+    setTimeout(() => {
+        toast.style.opacity = 0;
+        toast.style.transform = 'translateY(-20px)';
+        toast.addEventListener('transitionend', () => toast.remove());
+    }, 4000);
+}
 });
 </script>
