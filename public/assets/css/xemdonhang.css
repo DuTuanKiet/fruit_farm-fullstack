@@ -46,79 +46,100 @@ body {
 /* =================================== */
 .order-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 32px;
+    padding: 20px 0;
 }
 
+
+/* --- ORDER CARD --- */
 .order-item {
     background: #fff;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.06);
-    border: 1px solid #eee;
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    border: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.3s ease;
+    gap: 18px; /* spacing tổng trong card */
+    transition: 0.25s ease;
 }
 
 .order-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.10);
 }
 
+
+/* --- HEADER SECTION --- */
 .order-header {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
+    gap: 10px;
 }
 
 .order-id {
     font-weight: 700;
-    font-size: 16px;
-    color: #2c3e50;
+    font-size: 17px;
+    color: #1f2937;
+    letter-spacing: 0.2px;
 }
 
+
+/* --- STATUS LABEL --- */
 .order-status {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 13px;
+    padding: 7px 16px;
+    border-radius: 24px;
+    font-size: 14px;
     font-weight: 600;
-    text-transform: capitalize;
     width: fit-content;
+
+    /* spacing đẹp hơn */
+    margin-bottom: 18px;
 }
 
-/* Trạng thái màu */
+/* màu trạng thái */
 .status-pending { background: #fff4e1; color: #e67e22; }
 .status-confirmed { background: #e7f1ff; color: #0d6efd; }
 .status-shipping { background: #ede7f6; color: #6f42c1; }
 .status-completed { background: #e9f8ef; color: #27ae60; }
 .status-cancelled { background: #fdecea; color: #c0392b; }
 
+
+/* --- ORDER INFO --- */
 .order-info {
-    font-size: 15px;
-    color: #555;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 10px;
+    line-height: 1.55; /* giúp text dễ nhìn */
 }
 
-.order-info i { color: #6d9f58; margin-right: 6px; }
+.order-info i {
+    color: #6d9f58;
+    margin-right: 8px;
+    font-size: 15px;
+}
 
+
+/* --- DETAIL BUTTON --- */
 .btn-detail {
     background: #6d9f58;
     color: #fff;
-    padding: 10px 0;
-    border-radius: 10px;
+    padding: 12px 0;
+    border-radius: 12px;
+    font-size: 15px;
     text-align: center;
     font-weight: 600;
     text-decoration: none;
-    transition: 0.3s;
+
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+
+    transition: 0.25s ease;
 }
 
 .btn-detail:hover {
@@ -127,9 +148,18 @@ body {
     box-shadow: 0 4px 10px rgba(109,159,88,0.3);
 }
 
-/* Responsive */
+
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-    .order-grid { grid-template-columns: 1fr; gap: 20px; }
+    .order-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .order-item {
+        padding: 22px;
+        gap: 16px;
+    }
 }
 
 /* --- Phân trang --- */

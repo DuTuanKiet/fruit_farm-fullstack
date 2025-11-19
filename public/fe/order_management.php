@@ -173,8 +173,8 @@ $stmt->close();
                         </span>
                     </td>
                     <td class="action-buttons">
-                        <a href="chitietdonhang.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-info">
-                            <i class="fas fa-eye"></i> Xem
+                        <a href="order_detail.php?order_code=<?= urlencode($order['order_code']) ?>" class="btn btn-sm btn-success">
+                            <i class="fas fa-search-plus"></i> Xem
                         </a>
                         <?php
                         $statuses = ['pending'=>'Đang chờ xác nhận','confirmed'=>'Đã xác nhận','shipping'=>'Đang giao hàng','completed'=>'Đã hoàn thành','cancelled'=>'Đã hủy'];

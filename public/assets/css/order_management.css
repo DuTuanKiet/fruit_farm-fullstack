@@ -254,6 +254,22 @@
     cursor: not-allowed;
 }
 
+.btn-sm.btn-success {
+    background-color: #4CAF50; /* xanh lá dịu mắt */
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-sm.btn-success:hover {
+    background-color: #45a049; /* nhấn hover nhẹ */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+
 /* === 6. RESPONSIVE === */
 @media screen and (max-width: 992px) {
     .filter-form {

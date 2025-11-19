@@ -361,6 +361,16 @@ if ($result && $result->num_rows > 0) {
     </div>
 </section>
 <div class="toast-container" id="toast-container"></div>
+<!--Xử lí thông báo vô hiệu tài khoản từ gg callback-->
+<?php
+if (isset($_GET['error']) && $_GET['error'] === 'disabled_account') {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showToast('Tài khoản của bạn đã bị vô hiệu hóa. Không thể đăng nhập!', 'error');
+        });
+    </script>";
+}
+?>
       <!-- Back to Top Button -->
       <button id="backToTop" class="back-to-top">
         <i class="fas fa-arrow-up"></i>

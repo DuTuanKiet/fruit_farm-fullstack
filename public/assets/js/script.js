@@ -1390,6 +1390,18 @@ function initCheckoutPage() {
 document.addEventListener("DOMContentLoaded", async () => {
   const body = document.body;
 
+  // Lấy query string từ URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get('q'); // ?q=cam
+
+  // ==== CẬP NHẬT HEADER & LOAD PRODUCTS ====
+  await updateHeaderUser?.();
+
+  if (!searchQuery) {
+    // Chỉ load sản phẩm mặc định khi không có search query
+    loadProducts(1, 'default', 'all', 'all');
+  }
+
   // ==== LOGIN/SIGNUP POPUP ====
   function setupFormPopup() {
     if (!formPopup || !showPopupBtn) return;
@@ -1411,167 +1423,148 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ==== LOGIN/REGISTER AJAX ====
-if (registerForm) {
-  registerForm.addEventListener("submit", async e => {
-    e.preventDefault();
+  if (registerForm) {
+    registerForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const username = registerForm.username.value.trim();
+      const email = registerForm.email.value.trim();
+      const password = registerForm.password.value;
+      const confirm_password = registerForm.confirm_password.value;
 
-    const username = registerForm.username.value.trim();
-    const email = registerForm.email.value.trim();
-    const password = registerForm.password.value;
-    const confirm_password = registerForm.confirm_password.value;
-
-    if (!username || !email || !password || !confirm_password) {
-      showToast("Vui lòng điền đầy đủ các trường.", "error");
-      return;
-    }
-
-    try {
-      const res = await fetch("/fruitfarm/backend/auth/signup.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password, confirm_password })
-      });
-
-      const data = await res.json();
-      console.log("PHP response:", data); // debug
-
-      showToast(data.message, data.success ? "success" : "error");
-
-      if (data.success) {
-        setTimeout(() => {
-          document.querySelector('.form-box.signup').style.display = 'none';
-          const loginBox = document.querySelector('.form-box.login');
-          loginBox.style.display = 'flex';
-          formPopup.classList.remove('show-signup');
-          loginBox.querySelector('input[name="username"]').focus();
-        }, 400);
+      if (!username || !email || !password || !confirm_password) {
+        showToast("Vui lòng điền đầy đủ các trường.", "error");
+        return;
       }
 
-    } catch (err) {
-      console.error(err);
-      showToast("Có lỗi xảy ra. Vui lòng thử lại.", "error");
-    }
-  });
-}
-
-if (loginForm) {
-    loginForm.addEventListener("submit", async e => {
-        e.preventDefault();
-        const dataObj = Object.fromEntries(new FormData(loginForm).entries());
-        const res = await fetch("/fruitfarm/backend/auth/login.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dataObj),
+      try {
+        const res = await fetch("/fruitfarm/backend/auth/signup.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password, confirm_password })
         });
 
         const data = await res.json();
+        console.log("PHP response:", data); // debug
 
-        // Hiển thị toast chỉ 1 lần
         showToast(data.message, data.success ? "success" : "error");
 
         if (data.success) {
-            if (data.redirect) {
-                setTimeout(() => {
-                    window.location.href = data.redirect;
-                }, 800);
-            } else {
-                setTimeout(async () => {
-                    await updateHeaderUser();
-                    loadProducts();
-                    document.body.classList.remove("show-popup");
-                }, 500);
-            }
+          setTimeout(() => {
+            document.querySelector('.form-box.signup').style.display = 'none';
+            const loginBox = document.querySelector('.form-box.login');
+            loginBox.style.display = 'flex';
+            formPopup.classList.remove('show-signup');
+            loginBox.querySelector('input[name="username"]').focus();
+          }, 400);
         }
-    });
-}
 
+      } catch (err) {
+        console.error(err);
+        showToast("Có lỗi xảy ra. Vui lòng thử lại.", "error");
+      }
+    });
+  }
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const dataObj = Object.fromEntries(new FormData(loginForm).entries());
+      const res = await fetch("/fruitfarm/backend/auth/login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataObj),
+      });
+
+      const data = await res.json();
+      showToast(data.message, data.success ? "success" : "error");
+
+      if (data.success) {
+        if (data.redirect) {
+          setTimeout(() => window.location.href = data.redirect, 800);
+        } else {
+          setTimeout(async () => {
+            await updateHeaderUser();
+            if (!searchQuery) loadProducts(1, 'default', 'all', 'all');
+            document.body.classList.remove("show-popup");
+          }, 500);
+        }
+      }
+    });
+  }
+
+  // ==== BUTTON ACTIONS (ADD TO CART / BUY NOW / CART OPERATIONS) ====
   document.addEventListener("click", async (e) => {
     const target = e.target.closest('button');
     if (!target) return;
 
     // Kiểm tra login trước khi thêm giỏ / mua ngay
     if (target.classList.contains('requires-login')) {
-        // Kiểm tra lại server để chắc chắn
-        const user = await getSessionUser();
-        window.IS_LOGGED_IN = !!user.username;
+      const user = await getSessionUser();
+      window.IS_LOGGED_IN = !!user.username;
 
-        if (!window.IS_LOGGED_IN) {
-            e.preventDefault();
-            document.body.classList.add('show-popup');
-            showToast("Vui lòng đăng nhập để mua hàng!", "info");
-            return;
-        }
-    }
-
-// === Xử lý nút Thêm vào giỏ hàng (sử dụng hàm toàn cục addToCart) ===
-    if (target.classList.contains("add-to-cart-btn")) {
+      if (!window.IS_LOGGED_IN) {
         e.preventDefault();
-        const stock = parseInt(target.dataset.stock || 0);
-        if (stock <= 0) {
-            showToast("Sản phẩm này đã hết hàng!", "warning");
-            return;
-        }
-        // Gọi hàm addToCart (isBuyNow = false)
-        addToCart(target.dataset.id, 1, false); 
+        document.body.classList.add('show-popup');
+        showToast("Vui lòng đăng nhập để mua hàng!", "info");
         return;
+      }
     }
 
-    // === Xử lý nút "Mua ngay" (sử dụng hàm toàn cục addToCart) ===
-    if (target.classList.contains("buy-now-btn")) {
-        e.preventDefault();
-        const stock = parseInt(target.dataset.stock || 0);
-        if (stock <= 0) {
-            showToast("Sản phẩm này đã hết hàng!", "warning");
-            return;
-        }
-        // Các nút Add / Buy
+    // Thêm vào giỏ hàng
     if (target.classList.contains("add-to-cart-btn")) {
-        addToCart(target.dataset.id, 1, false);
+      e.preventDefault();
+      const stock = parseInt(target.dataset.stock || 0);
+      if (stock <= 0) { showToast("Sản phẩm này đã hết hàng!", "warning"); return; }
+      addToCart(target.dataset.id, 1, false); 
+      return;
     }
 
+    // Mua ngay
     if (target.classList.contains("buy-now-btn")) {
-        addToCart(target.dataset.id, 1, true);
-    }
+      e.preventDefault();
+      const stock = parseInt(target.dataset.stock || 0);
+      if (stock <= 0) { showToast("Sản phẩm này đã hết hàng!", "warning"); return; }
+      addToCart(target.dataset.id, 1, true);
     }
 
-    // === Hết hàng (btn-disabled) ===
+    // Hết hàng (btn-disabled)
     if (target.classList.contains("btn-disabled")) {
-        showToast("Sản phẩm này đã hết hàng!", "warning");
-        return;
+      showToast("Sản phẩm này đã hết hàng!", "warning");
+      return;
     }
 
-    // === Cart actions (increase, decrease, remove) ===
+    // Cart actions
     if (target.classList.contains("increase-btn") || target.classList.contains("decrease-btn") || target.classList.contains("remove-btn")) {
-        const cartRow = target.closest("tr");
-        const input = cartRow?.querySelector(".quantity-input");
-        const productId = target.dataset.id;
-        if (!cartRow || !productId || !input) return;
+      const cartRow = target.closest("tr");
+      const input = cartRow?.querySelector(".quantity-input");
+      const productId = target.dataset.id;
+      if (!cartRow || !productId || !input) return;
 
-        if (target.classList.contains("increase-btn")) {
-            const newQty = parseInt(input.value) + 1;
-            input.value = newQty;
-            handleCartAction("update", productId, newQty, true);
-        }
+      if (target.classList.contains("increase-btn")) {
+        const newQty = parseInt(input.value) + 1;
+        input.value = newQty;
+        handleCartAction("update", productId, newQty, true);
+      }
 
-        if (target.classList.contains("decrease-btn")) {
-            const newQty = parseInt(input.value) - 1;
-            if (newQty > 0) {
-                input.value = newQty;
-                handleCartAction("update", productId, newQty, true);
-            } else {
-                handleCartAction("remove", productId, 0, true);
-                cartRow.remove();
-            }
+      if (target.classList.contains("decrease-btn")) {
+        const newQty = parseInt(input.value) - 1;
+        if (newQty > 0) {
+          input.value = newQty;
+          handleCartAction("update", productId, newQty, true);
+        } else {
+          handleCartAction("remove", productId, 0, true);
+          cartRow.remove();
         }
+      }
 
-        if (target.classList.contains("remove-btn")) {
-            handleCartAction("remove", productId, 0, true);
-            cartRow.remove();
-        }
+      if (target.classList.contains("remove-btn")) {
+        handleCartAction("remove", productId, 0, true);
+        cartRow.remove();
+      }
     }
-});
+  });
 
-  // === ADMIN PRODUCTS PAGE LOGIC START ===
+  // ==== ADMIN PRODUCTS PAGE LOGIC ====
   (function () {
     const qv = document.getElementById("quickView");
     if (qv) {
@@ -1604,13 +1597,7 @@ if (loginForm) {
         const rows = productsTable.querySelectorAll("tbody tr.product-row");
         rows.forEach(r => {
           if (!val || val === "0") r.style.display = "";
-          else
-            r.style.display =
-              r.dataset.category === ""
-                ? "none"
-                : r.dataset.categoryId === val
-                ? ""
-                : "none";
+          else r.style.display = r.dataset.categoryId === val ? "" : "none";
         });
       });
     }
@@ -1629,7 +1616,7 @@ if (loginForm) {
     }
   })();
 
-  // ==== Phương thức thanh toán ====
+  // ==== CHECKOUT / PAYMENT ====
   const paymentSelect = document.getElementById("paymentSelect");
   const paymentInput = document.getElementById("payment-method-input");
   const checkoutForm = document.getElementById("checkoutForm");
@@ -1665,26 +1652,25 @@ if (loginForm) {
     });
   }
 
-if (checkoutForm && paymentInput) {
-  let isPaymentConfirmed = false;
+  if (checkoutForm && paymentInput) {
+    let isPaymentConfirmed = false;
     checkoutForm.addEventListener("submit", function (e) {
-        e.preventDefault(); // chặn submit mặc định
-        if (isPaymentConfirmed) return; 
-        const method = paymentInput.value;
+      e.preventDefault();
+      if (isPaymentConfirmed) return;
+      const method = paymentInput.value;
 
-        const onPaymentSuccess = () => {
-            isPaymentConfirmed = true;
-            checkoutForm.submit(); // submit lần 2
-        };
+      const onPaymentSuccess = () => {
+        isPaymentConfirmed = true;
+        checkoutForm.submit();
+      };
 
-        if (method === "vnpay" || method === "momo") {
-            showOTPModal(method, onPaymentSuccess); // popup OTP giả lập
-        } else {
-            onPaymentSuccess(); // COD hoặc phương thức không cần OTP
-        }
+      if (method === "vnpay" || method === "momo") {
+        showOTPModal(method, onPaymentSuccess);
+      } else {
+        onPaymentSuccess();
+      }
     });
-}
-
+  }
 
   // ==== PROFILE DROPDOWN ====
   if (profileIcon && dropdownMenu) {
@@ -1701,13 +1687,8 @@ if (checkoutForm && paymentInput) {
 
   // ==== BACK TO TOP ====
   if (backToTopBtn) {
-    window.addEventListener(
-      "scroll",
-      () => (backToTopBtn.style.display = window.scrollY > 300 ? "flex" : "none")
-    );
-    backToTopBtn.addEventListener("click", () =>
-      window.scrollTo({ top: 0, behavior: "smooth" })
-    );
+    window.addEventListener("scroll", () => backToTopBtn.style.display = window.scrollY > 300 ? "flex" : "none");
+    backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
   }
 
   // ==== MOBILE MENU ====
@@ -1753,14 +1734,7 @@ if (checkoutForm && paymentInput) {
     testimonialsSliderEl.addEventListener("mouseleave", () => testimonialSwiper.autoplay.start());
   }
 
-   // Tạo một lời gọi hàm đồng bộ
-  if (updateHeaderUser) {
-      await updateHeaderUser(); // <<< Chỉ gọi nếu hàm tồn tại
-  }
-
   // ==== INITIALIZATION ====
-  await updateHeaderUser(); 
-  loadProducts(1, 'default', 'all', 'all');
   loadCart?.();
   setupFormPopup?.();
   updateCartIconCount?.();
@@ -1768,22 +1742,5 @@ if (checkoutForm && paymentInput) {
   setupReadMoreToggle();
   setupItemNoteListeners?.();
   initializeFeedbackPage?.();
-  // handleOrderActions?.();
   setupCategoryFilter?.();
-  
-
-
-  if (
-    window.location.pathname.includes("sanpham.php") ||
-    window.location.pathname.endsWith("/fruitfarm/")
-  )
-  if (document.querySelector(".product-list")) { 
-        // Gọi loadProducts chỉ khi ở trang sản phẩm hoặc trang chủ có product-list
-        loadProducts(1, 'default');
-  }
-
-  if (window.location.pathname.includes("giohang.php")) {
-    // Gọi loadCart chỉ khi ở trang giỏ hàng
-    loadCart?.();
-  }
 });

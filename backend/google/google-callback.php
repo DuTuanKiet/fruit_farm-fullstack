@@ -72,7 +72,7 @@ if ($result->num_rows > 0) {
 
     // 🚫 NGĂN GOOGLE LOGIN nếu user bị vô hiệu hóa
     if (strtolower(trim($user['status'])) === 'disabled') {
-        echo "<script>alert('Tài khoản Google của bạn đã bị vô hiệu hóa. Không thể đăng nhập.'); window.location.href='/fruitfarm/public/index.php';</script>";
+        header("Location: /fruitfarm/public/index.php?error=disabled_account");
         exit;
     }
 
