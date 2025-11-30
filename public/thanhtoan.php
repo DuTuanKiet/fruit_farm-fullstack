@@ -1,13 +1,16 @@
 <?php
+// ---------------------------
+// 🚀 Khởi tạo & kiểm tra quyền
+// ---------------------------
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once('../backend/core/config.php');
 
-if (!isset($_SESSION['user_id'])) {
+if (empty($_SESSION['user_id'])) {
     header('Location: index.php');
     exit();
 }
 
-require_once('../backend/core/db_connect.php'); 
+require_once('../backend/core/db_connect.php');
 
 $userId = $_SESSION['user_id'];
 $items_to_checkout = [];
@@ -15,16 +18,29 @@ $total_price = 0;
 $mode = $_GET['mode'] ?? 'cart';
 $discount_amount = 0;
 
-// ✅ Lấy sản phẩm
-if ($mode === 'buy_now' && isset($_SESSION['buy_now_item'])) {
+// ---------------------------
+// 🛒 LẤY SẢN PHẨM CHECKOUT
+// ---------------------------
+
+// 👉 Mode BUY NOW
+if ($mode === 'buy_now' && !empty($_SESSION['buy_now_item'])) {
+
     $buyNowItem = $_SESSION['buy_now_item'];
-    if (isset($buyNowItem['product_id'], $buyNowItem['quantity'])) {
-        $stmt = $conn->prepare("SELECT id as product_id, name, price, image_url, stock FROM products WHERE id = ?");
+
+    if (!empty($buyNowItem['product_id']) && !empty($buyNowItem['quantity'])) {
+
+        $stmt = $conn->prepare("
+            SELECT id AS product_id, name, price, image_url, stock
+            FROM products 
+            WHERE id = ?
+        ");
         $stmt->bind_param("i", $buyNowItem['product_id']);
         $stmt->execute();
         $result = $stmt->get_result();
+
         if ($result->num_rows > 0) {
             $product = $result->fetch_assoc();
+
             if ($product['stock'] > 0) {
                 $product['quantity'] = min($buyNowItem['quantity'], $product['stock']);
                 $product['note'] = '';
@@ -33,25 +49,51 @@ if ($mode === 'buy_now' && isset($_SESSION['buy_now_item'])) {
         }
         $stmt->close();
     }
+
+    // Xóa item buy_now để tránh submit lại
     unset($_SESSION['buy_now_item']);
-} else {
-    $sql = "SELECT c.quantity, c.note, p.id as product_id, p.name, p.price, p.image_url, p.stock
-            FROM carts c
-            JOIN products p ON c.product_id = p.id
-            WHERE c.user_id = ? AND p.stock > 0";
+}
+
+// 👉 Mode CART
+else {
+
+    $sql = "
+        SELECT 
+            c.quantity, 
+            c.note, 
+            p.id AS product_id, 
+            p.name, 
+            p.price, 
+            p.image_url, 
+            p.stock
+        FROM carts c
+        JOIN products p ON c.product_id = p.id
+        WHERE c.user_id = ? AND p.stock > 0
+    ";
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
+
     while ($row = $result->fetch_assoc()) {
-        if ($row['quantity'] > $row['stock']) $row['quantity'] = $row['stock'];
+        if ($row['quantity'] > $row['stock']) {
+            $row['quantity'] = $row['stock']; // giảm SL vượt tồn
+        }
         $items_to_checkout[] = $row;
     }
+
     $stmt->close();
 }
 
-// ✅ Thông tin người dùng
-$stmt_user = $conn->prepare("SELECT username, phone, address FROM users WHERE id = ?");
+// ---------------------------
+// 👤 LẤY THÔNG TIN NGƯỜI DÙNG
+// ---------------------------
+$stmt_user = $conn->prepare("
+    SELECT username, phone, address 
+    FROM users 
+    WHERE id = ?
+");
 $stmt_user->bind_param("i", $userId);
 $stmt_user->execute();
 $user_info = $stmt_user->get_result()->fetch_assoc();
@@ -170,8 +212,8 @@ $stmt_user->close();
                         <tr>
                             <td>
                                 <div class="product-info-cell">
-                                    <img src="<?= BASE_URL . htmlspecialchars($item['image_url']); ?>" alt="">
-                                    <span><?= htmlspecialchars($item['name']); ?></span>
+                                    <img class="product-thumbnail" src="<?= BASE_URL . htmlspecialchars($item['image_url']); ?>" alt="">
+                                    <span class="product-name"><?= htmlspecialchars($item['name']); ?></span>
                                 </div>
                             </td>
                             <td><?= number_format($item['price']); ?>₫</td>

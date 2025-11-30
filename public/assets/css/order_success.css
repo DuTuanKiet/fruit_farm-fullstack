@@ -233,7 +233,44 @@ body, html {
     width: 100%;
   }
 }
+ /* Alert thông báo */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error   { background: #f8d7da; color: #721c24; }
 
+        /* Thông tin khách hàng */
+        .customer-info {
+            background: #f4f6f8;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .customer-info p { margin-bottom: 8px; }
+
+        /* Table tổng hợp */
+        .cart-table th, .cart-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        .cart-product-info { display: flex; align-items: center; gap: 15px; }
+        .cart-product-info img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+
+        /* Form đánh giá */
+        .review-form input,
+        .review-form textarea,
+        .review-form select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
 
 /* =========================
    Nút

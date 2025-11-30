@@ -19,6 +19,17 @@ function generateOrderCode($conn, $user_id) {
     return sprintf("U%d-%s-%03d", $user_id, $date, $seq);
 }
 
+/**
+ * Hàm tạo URL phân trang, giữ nguyên các filter.
+ */
+function create_page_url($page_num, $status_filter, $search_term) {
+    $url = "?page=orders";
+    if ($status_filter !== 'all') $url .= "&status=" . urlencode($status_filter);
+    if (!empty($search_term)) $url .= "&search=" . urlencode($search_term);
+    $url .= "&page_num=" . $page_num;
+    return $url;
+}
+
 // Lấy thống kê đơn hàng
 $total_stats = get_order_stats($conn);
 $stats_keys = ['all_orders','pending_orders','confirmed_orders','shipping_orders','completed_orders','cancelled_orders','total_revenue'];
@@ -29,7 +40,7 @@ foreach ($stats_keys as $key) {
 // Lấy filter và search
 $status_filter = $_GET['status'] ?? 'all';
 $search_term   = trim($_GET['search'] ?? '');
-$limit  = 10;
+$limit  = 6;
 $page   = max(1, intval($_GET['page_num'] ?? 1));
 $offset = ($page - 1) * $limit;
 
@@ -193,10 +204,56 @@ $stmt->close();
 
         <!-- Phân trang -->
         <div class="pagination-wrap">
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <a href="?page=orders&status=<?= $status_filter ?>&search=<?= urlencode($search_term) ?>&page_num=<?= $i ?>" 
-                   class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
-            <?php endfor; ?>
+    <?php if ($total_pages > 1): ?>
+        <nav class="pagination-nav">
+            <?php
+            $window = 2; // Hiển thị 2 nút trang bên trái và 2 nút trang bên phải trang hiện tại
+
+            // --- Nút Previous ---
+            $prev_page = max(1, $page - 1);
+            $prev_url = create_page_url($prev_page, $status_filter, $search_term);
+            $prev_class = ($page == 1) ? ' disabled' : '';
+            echo '<a href="'.$prev_url.'" class="page-link prev-next'.$prev_class.'" title="Trang trước"><i class="fas fa-angle-left"></i></a>';
+
+            // --- Nút trang 1 ---
+            $url_1 = create_page_url(1, $status_filter, $search_term);
+            echo '<a href="'.$url_1.'" class="page-link ' . (1 == $page ? 'active' : '') . '">1</a>';
+
+            // --- Dấu '...' đầu tiên ---
+            // Hiển thị '...' nếu trang hiện tại cách trang 1 hơn 2 bước
+            if ($page - $window > 2) {
+                echo '<span class="page-link ellipsis">...</span>';
+            }
+
+            // --- Các nút ở giữa (Window) ---
+            $start_i = max(2, $page - $window);
+            $end_i = min($total_pages - 1, $page + $window);
+            
+            for ($i = $start_i; $i <= $end_i; $i++) {
+                $url_i = create_page_url($i, $status_filter, $search_term);
+                echo '<a href="'.$url_i.'" class="page-link ' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
+            }
+
+            // --- Dấu '...' cuối cùng ---
+            // Hiển thị '...' nếu trang hiện tại cách trang cuối hơn 2 bước
+            if ($page + $window < $total_pages - 1) {
+                echo '<span class="page-link ellipsis">...</span>';
+            }
+            
+            // --- Nút trang cuối cùng ---
+            if ($total_pages > 1) {
+                 $url_last = create_page_url($total_pages, $status_filter, $search_term);
+                 echo '<a href="'.$url_last.'" class="page-link ' . ($total_pages == $page ? 'active' : '') . '">' . $total_pages . '</a>';
+            }
+
+            // --- Nút Next ---
+            $next_page = min($total_pages, $page + 1);
+            $next_url = create_page_url($next_page, $status_filter, $search_term);
+            $next_class = ($page == $total_pages) ? ' disabled' : '';
+            echo '<a href="'.$next_url.'" class="page-link prev-next'.$next_class.'" title="Trang sau"><i class="fas fa-angle-right"></i></a>';
+            ?>
+        </nav>
+    <?php endif; ?>
         </div>
         <?php endif; ?>
     </div>

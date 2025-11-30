@@ -1,0 +1,148 @@
+/* categories.css - Giao diện chuyên nghiệp, hiện đại */
+body {
+    /* Font hiện đại, dễ đọc */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fc; /* Nền xám nhạt */
+    margin: 0;
+    padding: 0;
+    color: #5a5c69; /* Màu chữ xám tối */
+    line-height: 1.6;
+}
+
+.page-container {
+    max-width: 1200px;
+    margin: 30px auto; /* Thêm khoảng cách trên/dưới */
+    padding: 0 20px;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 700; /* Đậm hơn */
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1e2a38;
+}
+
+/* --- Thiết lập Bảng Dữ liệu --- */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    /* Box shadow nhẹ, hiện đại */
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.styled-table thead tr {
+    background-color: #4e73df; /* Màu xanh Primary */
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+    border-bottom: 2px solid #4e73df;
+}
+
+.styled-table th, .styled-table td {
+    padding: 15px 18px; /* Padding lớn hơn */
+    border-bottom: 1px solid #e3e6ea;
+    vertical-align: middle;
+}
+
+/* Hiệu ứng di chuột và hàng chẵn/lẻ */
+.styled-table tbody tr:nth-child(even) {
+    background-color: #fcfcfd;
+}
+.styled-table tbody tr:hover {
+    background-color: #eceff1;
+    transition: background-color 0.2s ease;
+}
+
+/* Tối ưu hóa hàng thêm mới */
+.add-row td {
+    background-color: #f3f6f9;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-bottom: none !important;
+}
+
+/* --- Thiết lập Input và Form --- */
+input.edit-input, .add-row input {
+    width: 95%; /* Chiều rộng lớn hơn */
+    padding: 8px 10px;
+    border: 1px solid #d1d3e2;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #6e707e;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.075); /* Bóng đổ nhỏ */
+    transition: border-color 0.2s ease;
+}
+input.edit-input:focus, .add-row input:focus {
+    border-color: #88a7ff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+
+/* --- Thiết lập Nút bấm (Buttons) --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 15px; /* Padding lớn hơn */
+    border-radius: 0.35rem;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn i {
+    font-size: 14px;
+}
+
+.btn-add {
+    background-color: #4e73df; /* Xanh Primary */
+    color: #fff;
+}
+.btn-add:hover {
+    background-color: #2e59d9;
+    transform: translateY(-1px);
+}
+
+.btn-edit {
+    background-color: #36b9cc; /* Xanh Teal/Cyan */
+    color: #fff;
+}
+.btn-edit:hover {
+    background-color: #2c9faf;
+}
+
+.btn-save {
+    background-color: #1cc88a; /* Xanh lá cây */
+    color: #fff;
+}
+.btn-save:hover {
+    background-color: #15a975;
+}
+
+.btn-delete {
+    background-color: #e74a3b; /* Đỏ */
+    color: #fff;
+}
+.btn-delete:hover {
+    background-color: #cc372a;
+}
+
+
+/* --- Responsive (Đã tinh chỉnh) --- */
+@media (max-width: 768px) {
+    .page-container { margin: 20px auto; padding: 0 15px; }
+    .page-title { font-size: 22px; margin-bottom: 15px; }
+    .styled-table th, .styled-table td { padding: 10px; font-size: 12px; }
+    .btn { padding: 6px 10px; font-size: 12px; gap: 4px; }
+}

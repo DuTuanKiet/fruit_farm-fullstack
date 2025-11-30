@@ -283,6 +283,20 @@ main.section-content {
     color: var(--secondary-color);
 }
 
+.order-table .product-thumbnail {
+    width: 120px;      /* tăng chiều rộng */
+    height: 120px;     /* tăng chiều cao */
+    flex-shrink: 0;
+    border-radius: 8px; /* giữ bo góc */
+    object-fit: cover;  /* đảm bảo ảnh không méo */
+}
+
+.order-table .product-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* tăng khoảng cách giữa ảnh và tên */
+}
+
 
 /* --- Thanh chọn phương thức thanh toán --- */
 .payment-methods {

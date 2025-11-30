@@ -1,27 +1,25 @@
 /* ------------------------------------------------------------------
- * quanlydonhang.css
- * Dùng cho order_management.php và chitietdonhang.php
- * Đồng bộ với admin.css
+ * quanlydonhang.css - ĐÃ ĐỒNG BỘ MÀU SẮC CHUẨN BOOTSTRAP 5
  * ------------------------------------------------------------------ */
 
-/* === ĐỊNH NGHĨA BIẾN MÀU (nếu admin.css chưa có) === */
+/* === ĐỊNH NGHĨA BIẾN MÀU (Đã giữ nguyên) === */
 :root {
     --sidebar-bg: #ffffff;
     --bg-color: #f8f9fa;
     --text-color: #212529;
     --secondary-color: #6c757d;
-    --primary-color: #0d6efd;
-    --danger: #dc3545;
-    --success: #198754;
-    --warning: #ffc107;
-    --info: #0dcaf0;
+    --primary-color: #0d6efd; /* Xanh dương */
+    --danger: #dc3545;       /* Đỏ */
+    --success: #198754;      /* Xanh lá */
+    --warning: #ffc107;      /* Vàng */
+    --info: #0dcaf0;         /* Xanh ngọc */
     --light-text: #6c757d;
     --border-color: #dee2e6;
     --shadow: 0 4px 25px rgba(0, 0, 0, 0.07);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* === CẤU TRÚC CHUNG & CARD === */
+/* === CẤU TRÚC CHUNG & CARD (Đã giữ nguyên) === */
 .admin-content-wrapper {
     padding: 20px;
 }
@@ -36,7 +34,7 @@
     margin-bottom: 25px;
 }
 
-/* === 1. THỐNG KÊ TỔNG QUAN === */
+/* === 1. THỐNG KÊ TỔNG QUAN - ĐÃ SỬA LỖI MÀU ĐỎ === */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -50,9 +48,43 @@
     padding: 20px;
     border-radius: 8px;
     background-color: var(--sidebar-bg);
-    box-shadow: var(--shadow-sm);
+    
+    transition: all 0.3s ease;
+    cursor: pointer;
+    /* Đã sửa: Viền mỏng + Bóng nhẹ */
+    box-shadow: 0 0 0 1px var(--border-color), 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative; /* Cần thiết cho ::before */
+    overflow: hidden;
 }
 
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 1px var(--border-color), 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Accent Border: Dùng pseudo-element ::before */
+.stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px; /* Chiều cao accent border */
+    border-radius: 8px 8px 0 0;
+    opacity: 1; /* Đảm bảo màu sắc hiển thị rõ */
+}
+
+/* Áp dụng màu CHÍNH XÁC cho Accent Border theo thứ tự thẻ */
+/* Thẻ 1: Primary (Xanh dương) */
+.stat-card:nth-child(1)::before { background-color: var(--primary-color); } 
+/* Thẻ 2: Success (Xanh lá) */
+.stat-card:nth-child(2)::before { background-color: var(--success); }      
+/* Thẻ 3: Warning (Vàng) */
+.stat-card:nth-child(3)::before { background-color: var(--warning); }      
+/* Thẻ 4: Danger (Đỏ) */
+.stat-card:nth-child(4)::before { background-color: var(--danger); }       
+
+/* Cập nhật màu ICON (không có nền) */
 .stat-icon-wrapper {
     width: 50px;
     height: 50px;
@@ -61,23 +93,37 @@
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    color: #fff;
     margin-right: 15px;
+    
+    background-color: transparent; 
+}
+
+.stat-card:nth-child(1) .stat-icon-wrapper { color: var(--primary-color); }
+.stat-card:nth-child(2) .stat-icon-wrapper { color: var(--success); }
+.stat-card:nth-child(3) .stat-icon-wrapper { color: var(--warning); }
+.stat-card:nth-child(4) .stat-icon-wrapper { color: var(--danger); }
+
+
+.stat-info {
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 .stat-info p {
     margin: 0;
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: var(--light-text);
+    font-weight: 500;
 }
 
 .stat-info .stat-value {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.8rem;
+    font-weight: 700;
     color: var(--text-color);
+    margin-bottom: 2px;
 }
 
-/* === 2. THANH CÔNG CỤ LỌC & TÌM KIẾM === */
+/* --- 2. THANH CÔNG CỤ LỌC & TÌM KIẾM --- */
 .filter-controls {
     display: flex;
     gap: 20px;
@@ -112,6 +158,8 @@
     border-right: none;
     padding: 10px 14px;
     height: 42px;
+    /* Nâng cấp: đồng bộ input border */
+    border: 1px solid var(--border-color);
 }
 
 .search-group .btn-primary {
@@ -120,6 +168,9 @@
     height: 42px;
     padding: 10px 15px;
     min-width: 42px;
+    /* Đồng bộ màu Primary */
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .action-group {
@@ -133,9 +184,20 @@
     height: 42px;
     line-height: 22px;
     font-weight: 600;
+    /* Nâng cấp: Style nút reset/apply */
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--secondary-color);
+    transition: all 0.2s ease;
 }
 
-/* === 3. BẢNG DANH SÁCH ĐƠN HÀNG === */
+.btn-search-apply:hover,
+.btn-reset-search:hover {
+    background-color: #e9ecef;
+}
+
+/* --- 3. BẢNG DANH SÁCH ĐƠN HÀNG (Đã giữ nguyên) --- */
 .order-table {
     width: 100%;
     border-collapse: collapse;
@@ -161,10 +223,9 @@
     background-color: #f7f9fc;
 }
 
-/* Thông tin khách hàng */
 .customer-info {
     font-weight: 500;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Đồng bộ Primary */
 }
 
 .phone-number {
@@ -174,13 +235,12 @@
     margin-top: 2px;
 }
 
-/* Tổng tiền */
 .total-amount {
     font-weight: 600;
-    color: var(--danger);
+    color: var(--danger); /* Đồng bộ Danger */
 }
 
-/* === 4. BADGE TRẠNG THÁI ĐƠN HÀNG === */
+/* --- 4. BADGE TRẠNG THÁI ĐƠN HÀNG --- */
 .status-label {
     display: inline-block;
     padding: 8px 14px;
@@ -190,39 +250,40 @@
     letter-spacing: 0.3px;
     white-space: nowrap;
     transition: all 0.3s ease;
+    min-width: 150px; /* Đã đồng bộ với phần cuối file */
+    text-align: center;
 }
 
-/* Trạng thái cụ thể */
+/* Trạng thái cụ thể (Đã đồng bộ lại màu nền và chữ theo chuẩn) */
 .status-pending {
-    background: #fff3cd;
-    color: #856404;
+    background: #fff3cd; /* Nền Warning nhạt */
+    color: #664d03;     /* Chữ Warning đậm */
 }
 .status-confirmed,
 .status-processing {
-    background: #e7f1ff;
-    color: #0d6efd;
+    background: #cff4fc; /* Nền Info nhạt */
+    color: #055160;     /* Chữ Info đậm */
 }
 .status-shipping {
-    background: #ede7f6;
-    color: #6f42c1;
+    background: #d3f3e1; /* Nền Success nhạt hơn */
+    color: #0f5132;     /* Chữ Success đậm hơn */
 }
 .status-completed {
-    background: #e8f9ed;
+    background: #d1e7dd; /* Nền Success nhạt */
     color: var(--success);
     animation: fadeHighlight 0.6s ease-out;
 }
 .status-cancelled {
-    background: #fdeaea;
+    background: #f8d7da; /* Nền Danger nhạt */
     color: var(--danger);
 }
 
-/* Hiệu ứng chuyển trạng thái */
 @keyframes fadeHighlight {
-    0% { box-shadow: 0 0 0 4px rgba(25,135,84,0.15); }
+    0% { box-shadow: 0 0 0 4px rgba(25,135,84,0.15); } /* Sử dụng Success */
     100% { box-shadow: none; }
 }
 
-/* === 5. NÚT HÀNH ĐỘNG === */
+/* --- 5. NÚT HÀNH ĐỘNG --- */
 .action-buttons {
     display: flex;
     flex-direction: column;
@@ -255,8 +316,8 @@
 }
 
 .btn-sm.btn-success {
-    background-color: #4CAF50; /* xanh lá dịu mắt */
-    color: #fff;
+    background-color: var(--success); /* Đồng bộ Success */
+    color: var(--white);
     padding: 8px 16px;
     border-radius: 8px;
     font-weight: 600;
@@ -264,13 +325,13 @@
 }
 
 .btn-sm.btn-success:hover {
-    background-color: #45a049; /* nhấn hover nhẹ */
+    background-color: #15803d; /* Success đậm hơn cho hover */
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 
-/* === 6. RESPONSIVE === */
+/* --- 6. RESPONSIVE (Đã giữ nguyên) --- */
 @media screen and (max-width: 992px) {
     .filter-form {
         flex-wrap: wrap;
@@ -353,43 +414,74 @@
         max-width: none;
     }
 }
-/* === PHÂN TRANG === */
-.pagination {
+/* ==================================== */
+/* Cập nhật CSS cho Phân Trang (PAGINATION) - Đã đồng bộ màu */
+/* ==================================== */
+.pagination-wrap {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    padding: 20px 0;
     margin-top: 20px;
+    border-top: 1px solid var(--border-color); /* Đồng bộ border */
+}
+
+.pagination-nav {
+    display: flex;
+    gap: 5px;
+    align-items: center;
 }
 
 .page-link {
-    display: inline-block;
-    padding: 8px 14px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 38px; /* Nâng kích thước lên 38px */
+    height: 38px;
+    padding: 0 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    color: var(--text-color);
     text-decoration: none;
-    background: white;
-    transition: 0.3s;
+    color: var(--primary-color); /* Đồng bộ màu chữ mặc định */
+    background-color: var(--white);
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
-.page-link:hover {
-    background: var(--primary-color);
-    color: white;
+.page-link:hover:not(.active):not(.disabled):not(.ellipsis) {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #0a58ca; /* Primary đậm hơn cho hover */
 }
 
 .page-link.active {
-    background: var(--primary-color);
-    color: #fff;
-    font-weight: 600;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+    font-weight: 700;
+    cursor: default;
 }
 
-/* Đảm bảo các badge trạng thái đồng nhất chiều cao và canh giữa */
-.status-label {
-    min-width: 150px;
-    text-align: center;
+.page-link.disabled, .page-link.ellipsis {
+    color: var(--secondary-color);
+    cursor: not-allowed;
+    background-color: #f8f9fa;
 }
 
-/* Toast container */
+/* Nút Previous/Next chỉ hiển thị icon */
+.page-link.prev-next {
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.page-link.prev-next i {
+    font-size: 14px;
+}
+
+.page-link.disabled.prev-next {
+    background-color: #f8f9fa;
+}
+
+/* Toast container (Đã giữ nguyên) */
 #toast-container {
     position: fixed;
     top: 1rem;
@@ -401,11 +493,11 @@
     pointer-events: none;
 }
 
-/* Toast base */
+/* Toast base (Đã giữ nguyên) */
 .toast { 
     padding: 12px 20px;
     border-radius: 8px;
-    color: #fff; /* chữ trắng nổi bật */
+    color: #fff;
     font-weight: 500;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     opacity: 0;

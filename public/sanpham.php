@@ -1,20 +1,63 @@
 <?php
-// Bỏ toàn bộ phần truy vấn database và xuất JSON, chỉ giữ lại phần HTML và thiết lập ban đầu
-
-// Kiểm tra session
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-// Vẫn cần các file config để sử dụng BASE_URL trong HTML
+session_start();
 require_once(__DIR__ . '/../backend/core/config.php');
-// Không cần db_connect.php vì không truy vấn DB ở đây nữa.
+require_once(__DIR__ . '/../backend/core/db_connect.php'); // <<< BƯỚC 1: Đảm bảo kết nối DB ($conn)
 
-// --- Thiết lập mặc định (cần để sử dụng trong HTML count) ---
-$products = []; // Gán rỗng vì data sẽ được tải bằng JS
+// Lấy filter từ query string
+$selectedCategory = $_GET['category'] ?? 'all';
 $priceFilter = $_GET['price'] ?? 'all';
-$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-// Bỏ qua các biến phân trang và truy vấn database
 
+// =======================================================
+// <<< BƯỚC 2: LẤY DANH MỤC TỪ DB CHO THANH LỌC >>>
+// =======================================================
+$categories_list = [];
+$stmt_cat = $conn->prepare("SELECT name, slug FROM categories ORDER BY name ASC");
+$stmt_cat->execute();
+$result_cat = $stmt_cat->get_result();
+while ($row = $result_cat->fetch_assoc()) {
+    $categories_list[] = $row;
+}
+$stmt_cat->close();
+
+// Query products + join categories
+$sql = "
+    SELECT p.*, c.name AS category_name, c.slug AS category_slug
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.status = 'active'
+";
+
+// Lọc theo category slug
+if ($selectedCategory !== 'all') {
+    $sql .= " AND c.slug = '" . $conn->real_escape_string($selectedCategory) . "' ";
+}
+
+// Lọc theo giá
+switch ($priceFilter) {
+    case '0-100':
+        $sql .= " AND p.price <= 100000 ";
+        break;
+    case '100-300':
+        $sql .= " AND p.price BETWEEN 100000 AND 300000 ";
+        break;
+    case '300-500':
+        $sql .= " AND p.price BETWEEN 300000 AND 500000 ";
+        break;
+    case '500+':
+        $sql .= " AND p.price >= 500000 ";
+        break;
+}
+
+// Sắp xếp theo thời gian tạo
+$sql .= " ORDER BY p.created_at DESC ";
+
+$result = $conn->query($sql);
+
+if (!$result) {
+    die("Query error: " . $conn->error);
+}
+
+$products = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -53,26 +96,32 @@ $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] :
   <section class="product-section">
     <!-- Thanh danh mục sản phẩm -->
 <div class="category-bar">
-  <div class="category-dropdown">
-    <button class="category-btn active" data-category="all">
-      <i class="fa-solid fa-list"></i> Tất cả
-      <i class="fa-solid fa-chevron-down caret"></i>
-    </button>
-    <div class="dropdown-menu">
-      <button data-category="all">Tất cả sản phẩm</button> <button data-category="trai-tuoi">Trái cây tươi</button>
-      <button data-category="saykho">Trái cây sấy khô</button>
-      <button data-category="nhapkhau">Trái cây nhập khẩu</button>
-      <button data-category="dac-san">Đặc sản vùng miền</button>
-      <button data-category="hienmua">Theo mùa hiện tại</button>
+    <div class="category-dropdown">
+        <button class="category-btn <?= $selectedCategory === 'all' ? 'active' : '' ?>" data-category="all">
+            <i class="fa-solid fa-list"></i> Tất cả
+            <i class="fa-solid fa-chevron-down caret"></i>
+        </button>
+        <div class="dropdown-menu">
+            <button data-category="all" <?= $selectedCategory === 'all' ? 'class="active"' : '' ?>>Tất cả sản phẩm</button>
+            
+            <?php foreach ($categories_list as $cat): ?>
+                <button data-category="<?= htmlspecialchars($cat['slug']) ?>" 
+                        <?= $selectedCategory === $cat['slug'] ? 'class="active"' : '' ?>>
+                    <?= htmlspecialchars($cat['name']) ?>
+                </button>
+            <?php endforeach; ?>
+        </div>
     </div>
-  </div>
 
-  <button class="category-btn" data-category="nhietdoi">🥭 Nhiệt đới</button>
-  <button class="category-btn" data-category="camquyt">🍊 Có múi</button>
-  <button class="category-btn" data-category="nhapkhau">🍎 Nhập khẩu</button>
-  <button class="category-btn" data-category="dac-san">🌾 Đặc sản Việt</button>
-  <button class="category-btn" data-category="saykho">🍌 Sấy khô</button>
-  <button class="category-btn" data-category="berry">🍓 Dâu & Berry</button>
+    <?php 
+    $i = 0;
+    foreach ($categories_list as $cat): 
+        if ($i++ >= 6) break; // Chỉ hiển thị tối đa 6 nút
+    ?>
+        <button class="category-btn <?= $selectedCategory === $cat['slug'] ? 'active' : '' ?>" data-category="<?= htmlspecialchars($cat['slug']) ?>">
+            <?= htmlspecialchars($cat['name']) ?>
+        </button>
+    <?php endforeach; ?>
 </div>
 
     <h2 class="section-title">Sản phẩm chúng tôi</h2>

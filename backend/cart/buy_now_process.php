@@ -8,7 +8,11 @@ if ($user_id <= 0) {
     die("Bạn phải đăng nhập.");
 }
 
-if (isset($_SESSION['buy_now_item']) && $_GET['mode'] === 'buy_now') {
+// Fix lỗi: tránh undefined index
+$mode = $_GET['mode'] ?? '';
+
+if (isset($_SESSION['buy_now_item']) && $mode === 'buy_now') {
+
     $item = $_SESSION['buy_now_item'];
     $product_id = intval($item['product_id']);
     $quantity   = intval($item['quantity']);
@@ -18,15 +22,23 @@ if (isset($_SESSION['buy_now_item']) && $_GET['mode'] === 'buy_now') {
     $stmt->bind_param("i", $product_id);
     $stmt->execute();
     $product = $stmt->get_result()->fetch_assoc();
+
     if (!$product) die("Sản phẩm không tồn tại.");
+
+    // Fix logic tồn kho
+    if ($product['stock'] <= 0) die("Sản phẩm đã hết hàng.");
+    $quantity = min($quantity, $product['stock']);
 
     $total_amount = $product['price'] * $quantity;
 
     // Tạo đơn hàng mới
-    $stmt = $conn->prepare("INSERT INTO orders (user_id, customer_name, customer_address, customer_phone, total_amount, status) VALUES (?, ?, ?, ?, ?, 'pending')");
-    $customer_name = $_SESSION['username'] ?? 'Khách hàng';
-    $customer_address = '';
-    $customer_phone = '';
+    $stmt = $conn->prepare("
+        INSERT INTO orders (user_id, customer_name, customer_address, customer_phone, total_amount, status) 
+        VALUES (?, ?, ?, ?, ?, 'pending')
+    ");
+    $customer_name    = $_SESSION['username'] ?? 'Khách hàng';
+    $customer_address = ''; // giữ nguyên logic của bạn
+    $customer_phone   = ''; // giữ nguyên
     $stmt->bind_param("isssd", $user_id, $customer_name, $customer_address, $customer_phone, $total_amount);
     $stmt->execute();
     $order_id = $conn->insert_id;
@@ -38,7 +50,10 @@ if (isset($_SESSION['buy_now_item']) && $_GET['mode'] === 'buy_now') {
     $stmt->execute();
 
     // Thêm chi tiết đơn hàng
-    $stmt = $conn->prepare("INSERT INTO order_details (order_id, product_id, product_name, quantity, price) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("
+        INSERT INTO order_details (order_id, product_id, product_name, quantity, price) 
+        VALUES (?, ?, ?, ?, ?)
+    ");
     $stmt->bind_param("iisid", $order_id, $product_id, $product['name'], $quantity, $product['price']);
     $stmt->execute();
 

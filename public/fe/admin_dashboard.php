@@ -151,6 +151,7 @@ if ($page === 'feedback' && $id > 0) {
             <li><a href="?page=dashboard" class="<?= $page == 'dashboard' ? 'active' : '' ?>"><i class="fa-solid fa-gauge-high"></i> Trang chủ</a></li>
             <li><a href="?page=accounts" class="<?= $page == 'accounts' ? 'active' : '' ?>"><i class="fa-solid fa-users"></i> Quản lý tài khoản</a></li>
             <li><a href="?page=products" class="<?= $page == 'products' ? 'active' : '' ?>"><i class="fa-solid fa-box-archive"></i> Quản lý sản phẩm</a></li>
+            <li><a href="?page=categories" class="<?= ($page == 'categories') ? 'active' : '' ?>"><i class="fa-solid fa-list"></i> Quản lý danh mục</a></li>
             <li><a href="?page=orders" class="<?= $page == 'orders' ? 'active' : '' ?>"><i class="fas fa-box"></i> Quản lý đơn hàng</a></li>
             <li><a href="?page=reports" class="<?= $page == 'reports' ? 'active' : '' ?>"><i class="fa-solid fa-chart-line"></i> Quản lý thống kê</a></li>
             <li><a href="?page=feedback" class="<?= $page == 'feedback' ? 'active' : '' ?>"><i class="fa-solid fa-message"></i> Quản lý phản hồi</a></li>
@@ -162,11 +163,12 @@ if ($page === 'feedback' && $id > 0) {
             <h1>
                 <?php
                 switch ($page) {
-                    case 'orders': echo "Quản lý đơn hàng"; break;
-                    case 'accounts': echo "Quản lý tài khoản"; break;
-                    case 'products': echo "Quản lý sản phẩm"; break;
+                    case 'orders': echo "Quản lý Đơn hàng"; break;
+                    case 'accounts': echo "Quản lý Tài khoản"; break;
+                    case 'products': echo "Quản lý Sản phẩm"; break;
+                    case 'categories': echo "Quản lý Danh mục"; break;
                     case 'reports': echo "Báo cáo & Thống kê"; break;
-                    case 'feedback': echo "Quản lý phản hồi"; break;
+                    case 'feedback': echo "Quản lý Phản hồi"; break;
                     default: echo "Trang chủ"; break;
                 }
                 ?>
@@ -192,6 +194,7 @@ if ($page === 'feedback' && $id > 0) {
                     }
                     break;
                 case 'products': include 'products.php'; break;
+                case 'categories': include 'categories.php'; break;
                 case 'reports': include 'reports.php'; break;
                 case 'feedback': include 'feedback.php'; break;
                 case 'orders': include 'order_management.php'; break;

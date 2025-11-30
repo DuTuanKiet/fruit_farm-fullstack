@@ -4,7 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once(__DIR__ . '/../backend/core/config.php');
-require_once(__DIR__ . '/../backend/core/db_connect.php'); 
 
 // Lấy sản phẩm nổi bật
 $products = [];
@@ -61,18 +60,9 @@ if ($result && $result->num_rows > 0) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fruit Farm</title>
-    <!-- Link font awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Material+Symbols+Rounded:opsz,wght, FILL, GRAD@48,400,0,0"
-    />
-    <!-- Link Swiper's CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-    />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Symbols+Rounded:opsz,wght, FILL, GRAD@48,400,0,0"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <link rel="stylesheet" href="<?= BASE_URL ?>public/assets/css/style.css" />
   </head>
   <body>
@@ -108,7 +98,7 @@ if ($result && $result->num_rows > 0) {
       <section class="about-section" id="about">
         <div class="section-content">
           <div class="about-image-wrapper">
-            <img src="<?= BASE_URL ?>public/assets/images/about-us.jpg" alt="About" class="about-image" />
+            <img src="<?= BASE_URL ?>public/assets/images/logo-about.avif" alt="About" class="about-image" />
           </div>
           <div class="about-details">
             <h2 class="section-title">Về chúng tôi - Fruit Farm</h2>

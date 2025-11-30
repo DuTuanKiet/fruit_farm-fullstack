@@ -1520,12 +1520,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Mua ngay
-    if (target.classList.contains("buy-now-btn")) {
-      e.preventDefault();
-      const stock = parseInt(target.dataset.stock || 0);
-      if (stock <= 0) { showToast("Sản phẩm này đã hết hàng!", "warning"); return; }
-      addToCart(target.dataset.id, 1, true);
-    }
+if (target.classList.contains("buy-now-btn")) {
+  e.preventDefault();
+
+  const stock = parseInt(target.dataset.stock || 0);
+  const productId = target.dataset.id;
+
+  if (stock <= 0) { 
+    showToast("Sản phẩm này đã hết hàng!", "warning"); 
+    return; 
+  }
+
+  // Gọi addToCart với isBuyNow = true
+  addToCart(productId, 1, true);
+}
 
     // Hết hàng (btn-disabled)
     if (target.classList.contains("btn-disabled")) {
